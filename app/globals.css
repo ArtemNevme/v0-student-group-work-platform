@@ -1,0 +1,223 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * StudySinc design tokens — см. DESIGN.md («Тихий инструмент с характером»).
+ * Единственный источник значений: этот файл. Хардкод цветов в компонентах
+ * запрещён (см. AGENTS.md).
+ */
+
+:root {
+  /* Сырые токены (DESIGN.md §3) */
+  --bg: oklch(0.965 0.008 85);
+  --surface: oklch(0.985 0.005 90);
+  --surface-2: oklch(0.94 0.01 82);
+  --fg: oklch(0.27 0.015 70);
+  --muted: oklch(0.5 0.02 75);
+  --border: oklch(0.895 0.012 82);
+  --accent: oklch(0.64 0.13 58);
+  --accent-fg: oklch(0.46 0.1 55);
+  --accent-soft: oklch(0.925 0.035 72);
+  --on-accent: oklch(0.99 0.005 90);
+  --success: oklch(0.58 0.09 155);
+  --danger: oklch(0.55 0.13 25);
+
+  /* Маппинг на семантику shadcn/ui */
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --card: var(--surface);
+  --card-foreground: var(--fg);
+  --popover: var(--surface);
+  --popover-foreground: var(--fg);
+  --primary: var(--accent);
+  --primary-foreground: var(--on-accent);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--fg);
+  --muted-foreground: var(--muted);
+  --destructive: var(--danger);
+  --destructive-foreground: var(--on-accent);
+  --input: var(--border);
+  --ring: var(--accent);
+  --chart-1: var(--accent);
+  --chart-2: oklch(0.55 0.08 65);
+  --chart-3: oklch(0.48 0.04 70);
+  --chart-4: oklch(0.62 0.06 78);
+  --chart-5: oklch(0.38 0.03 70);
+  --radius: 0.5rem;
+  --sidebar: var(--bg);
+  --sidebar-foreground: var(--fg);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--on-accent);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--accent-fg);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--accent);
+  --shadow-x: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 2px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.05;
+  --shadow-color: #000000;
+}
+
+.dark {
+  /* Сырые токены (DESIGN.md §3, тёмная тема) */
+  --bg: oklch(0.2 0.012 70);
+  --surface: oklch(0.235 0.013 72);
+  --surface-2: oklch(0.27 0.014 72);
+  --fg: oklch(0.93 0.008 82);
+  --muted: oklch(0.66 0.018 78);
+  --border: oklch(0.315 0.013 72);
+  --accent: oklch(0.79 0.13 72);
+  --accent-fg: oklch(0.83 0.12 75);
+  --accent-soft: oklch(0.31 0.04 66);
+  --on-accent: oklch(0.22 0.02 65);
+  --success: oklch(0.7 0.1 155);
+  --danger: oklch(0.68 0.14 28);
+
+  /* Маппинг на семантику shadcn/ui */
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --card: var(--surface);
+  --card-foreground: var(--fg);
+  --popover: var(--surface);
+  --popover-foreground: var(--fg);
+  --primary: var(--accent);
+  --primary-foreground: var(--on-accent);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--fg);
+  --muted-foreground: var(--muted);
+  --destructive: var(--danger);
+  --destructive-foreground: oklch(0.22 0.02 65);
+  --input: var(--border);
+  --ring: var(--accent);
+  --chart-1: var(--accent);
+  --chart-2: oklch(0.7 0.08 70);
+  --chart-3: oklch(0.58 0.04 72);
+  --chart-4: oklch(0.76 0.05 78);
+  --chart-5: oklch(0.5 0.03 72);
+  --sidebar: var(--bg);
+  --sidebar-foreground: var(--fg);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--on-accent);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--accent-fg);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--accent);
+  --shadow-x: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 2px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.05;
+  --shadow-color: #000000;
+}
+
+@theme inline {
+  --font-display: var(--font-geologica), "Geologica", var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--surface-2);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--surface-2);
+  --color-accent-foreground: var(--fg);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  /* Токены DESIGN.md, недоступные в дефолтной семантике shadcn */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-card: 10px;
+  --radius-control: 8px;
+  --radius-chip: 6px;
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* computed shadow variables below - do not modify */
+  --shadow-2xs: var(--shadow-x) var(--shadow-y)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-sm: var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 1.5) var(--shadow-spread)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-md: calc(var(--shadow-x) * 2) calc(var(--shadow-y) * 2) calc(var(--shadow-blur) * 3)
+    calc(var(--shadow-spread) - 1px)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-lg: calc(var(--shadow-x) * 4) calc(var(--shadow-y) * 4) calc(var(--shadow-blur) * 5)
+    calc(var(--shadow-spread) - 3px)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-xl: calc(var(--shadow-x) * 6) calc(var(--shadow-y) * 6) calc(var(--shadow-blur) * 7)
+    calc(var(--shadow-spread) - 5px)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  --shadow-2xl: calc(var(--shadow-x) * 8) calc(var(--shadow-y) * 8) calc(max(0px, var(--shadow-blur) * 9 - 8px))
+    calc(var(--shadow-spread) - 12px)
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 250%), transparent);
+  --shadow: var(--shadow-md);
+  --color-shadow-color: var(--shadow-color);
+  --shadow-opacity: var(--shadow-opacity);
+  --shadow-spread: var(--shadow-spread);
+  --shadow-blur: var(--shadow-blur);
+  --shadow-y: var(--shadow-y);
+  --shadow-x: var(--shadow-x);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Числа геймификации и дедлайнов — «приборная панель» (DESIGN.md §4) */
+.font-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* DESIGN.md §6: prefers-reduced-motion обязателен */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

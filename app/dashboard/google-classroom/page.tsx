@@ -32,7 +32,7 @@ export default async function GoogleClassroomPage({
   // Calculate total assignments across all subjects
   const totalAssignments = subjects.reduce((acc, subject) => acc + (subject.assignments?.length || 0), 0)
   const upcomingAssignments = subjects.reduce((acc, subject) => {
-    const upcoming = subject.assignments?.filter((a) => a.deadline && new Date(a.deadline) > new Date()) || []
+    const upcoming = subject.assignments?.filter((a: { deadline?: string | null }) => a.deadline && new Date(a.deadline) > new Date()) || []
     return acc + upcoming.length
   }, 0)
 

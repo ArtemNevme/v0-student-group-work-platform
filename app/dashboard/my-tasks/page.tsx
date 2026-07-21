@@ -30,6 +30,7 @@ export interface TaskItem {
   courseId?: string
   daysUntilDeadline?: number
   isCompleted?: boolean
+  isImported?: boolean
 }
 
 function shouldHideTask(deadline: string | null, status: string): boolean {
@@ -110,7 +111,7 @@ export default async function MyTasksPage() {
 
   let hiddenStudySync = 0
   const studySyncItems: TaskItem[] = (assignments || [])
-    .map((a) => {
+    .map((a): TaskItem | null => {
       const hide = shouldHideTask(a.deadline, a.status)
       if (hide) {
         hiddenStudySync++
@@ -145,7 +146,7 @@ export default async function MyTasksPage() {
 
   let hiddenGoogle = 0
   const googleItems: TaskItem[] = (importedAssignments || [])
-    .map((a) => {
+    .map((a): TaskItem | null => {
       const hide = shouldHideTask(a.due_date, "active")
       if (hide) {
         hiddenGoogle++
@@ -171,7 +172,7 @@ export default async function MyTasksPage() {
         link: null,
         externalLink: a.alternate_link,
         externalId: a.google_assignment_id,
-        courseId: a.google_course_id,
+        courseId: a.google_course_id || undefined,
         daysUntilDeadline: daysUntil,
         isCompleted: false,
       }

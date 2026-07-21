@@ -670,12 +670,8 @@ export function MyTasksClient({
         <ImportAssignmentDialog
           open={importDialogOpen}
           onOpenChange={setImportDialogOpen}
-          groups={groups}
-          externalId={selectedAssignment.externalId}
-          title={selectedAssignment.title}
-          description={selectedAssignment.description}
-          deadline={selectedAssignment.deadline}
-          courseName={selectedAssignment.courseName}
+          assignment={selectedAssignment}
+          userGroups={groups}
         />
       )}
     </div>

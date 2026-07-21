@@ -2,6 +2,12 @@
 
 import type React from "react"
 import { useState, useEffect, useRef, useCallback } from "react"
+import type {
+  RealtimePostgresChangesPayload,
+  RealtimePostgresInsertPayload,
+  RealtimePostgresUpdatePayload,
+  REALTIME_SUBSCRIBE_STATES,
+} from "@supabase/realtime-js"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -131,7 +137,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             table: "messages",
             filter: `group_id=eq.${groupId}`,
           },
-          async (payload) => {
+          async (payload: RealtimePostgresInsertPayload<{ id: string; [key: string]: any }>) => {
             const { data } = await supabase
               .from("messages")
               .select(`
@@ -161,7 +167,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             table: "messages",
             filter: `group_id=eq.${groupId}`,
           },
-          async (payload) => {
+          async (payload: RealtimePostgresUpdatePayload<{ id: string; content: string; is_edited: boolean; is_deleted: boolean; [key: string]: any }>) => {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === payload.new.id
@@ -183,7 +189,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             schema: "public",
             table: "message_reactions",
           },
-          async (payload) => {
+          async (payload: RealtimePostgresChangesPayload<{ id: string; [key: string]: any }>) => {
             if (payload.new && typeof payload.new === "object" && "message_id" in payload.new) {
               const messageId = payload.new.message_id
               const { data: reactions } = await supabase
@@ -195,7 +201,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             }
           },
         )
-        .subscribe(async (status) => {
+        .subscribe(async (status: REALTIME_SUBSCRIBE_STATES) => {
           if (status === "SUBSCRIBED") {
             const currentMember = members.find((m) => m.user_id === currentUserId)
             await channel.track({

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { getMyNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "@/lib/actions/notifications"
 import { getPendingInvitations } from "@/lib/actions/notifications"
 import { acceptInvitation } from "@/lib/actions/groups"
+import type { RealtimePostgresChangesPayload, REALTIME_SUBSCRIBE_STATES } from "@supabase/realtime-js"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
@@ -95,7 +96,7 @@ export function NotificationsPanel() {
             table: "notifications",
             filter: `user_id=eq.${currentUserId}`,
           },
-          (payload) => {
+          (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
             console.log("[v0] New notification received:", payload)
             const newNotification = payload.new as Notification
             setNotifications((prev) => {
@@ -115,13 +116,13 @@ export function NotificationsPanel() {
             table: "notifications",
             filter: `user_id=eq.${currentUserId}`,
           },
-          (payload) => {
+          (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
             console.log("[v0] Notification updated:", payload)
             const updatedNotification = payload.new as Notification
             setNotifications((prev) => prev.map((n) => (n.id === updatedNotification.id ? updatedNotification : n)))
           },
         )
-        .subscribe((status, err) => {
+        .subscribe((status: REALTIME_SUBSCRIBE_STATES, err?: Error) => {
           console.log("[v0] Notifications subscription status:", status)
           if (err) {
             console.error("[v0] Notifications subscription error:", err)

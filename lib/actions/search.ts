@@ -11,6 +11,40 @@ export interface SearchResult {
   icon?: string
 }
 
+interface AssignmentRow {
+  id: string
+  title: string
+  status: string
+  group: {
+    name: string
+  } | null
+}
+
+interface MemberRow {
+  user_id: string
+  profile: {
+    id: string
+    full_name: string | null
+    email: string | null
+  } | null
+  group: {
+    name: string
+  } | null
+}
+
+interface TaskAssignmentRow {
+  id: string
+  status: string
+  task: {
+    id: string
+    title: string
+    assignment: {
+      id: string
+      title: string
+    } | null
+  } | null
+}
+
 export async function globalSearch(query: string): Promise<SearchResult[]> {
   if (!query || query.length < 2) {
     return []
@@ -34,7 +68,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
   const groupIds = userGroups?.map((g) => g.group_id) || []
 
   // Search tasks assigned to user
-  const { data: tasks } = await supabase
+  const { data: rawTasks } = await supabase
     .from("task_assignments")
     .select(`
       id,
@@ -52,6 +86,8 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
     .ilike("task.title", searchQuery)
     .limit(5)
 
+  const tasks = rawTasks as TaskAssignmentRow[] | null
+
   tasks?.forEach((t) => {
     if (t.task?.title) {
       results.push({
@@ -67,7 +103,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
 
   // Search assignments in user's groups
   if (groupIds.length > 0) {
-    const { data: assignments } = await supabase
+    const { data: rawAssignments } = await supabase
       .from("assignments")
       .select(`
         id,
@@ -80,6 +116,8 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       .in("group_id", groupIds)
       .ilike("title", searchQuery)
       .limit(5)
+
+    const assignments = rawAssignments as AssignmentRow[] | null
 
     assignments?.forEach((a) => {
       results.push({
@@ -116,7 +154,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
 
   // Search group members
   if (groupIds.length > 0) {
-    const { data: members } = await supabase
+    const { data: rawMembers } = await supabase
       .from("group_members")
       .select(`
         user_id,
@@ -131,6 +169,8 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       `)
       .in("group_id", groupIds)
       .limit(10)
+
+    const members = rawMembers as MemberRow[] | null
 
     members?.forEach((m) => {
       if (
@@ -174,7 +214,7 @@ export async function getRecentItems(): Promise<SearchResult[]> {
 
   // Recent assignments
   if (groupIds.length > 0) {
-    const { data: recentAssignments } = await supabase
+    const { data: rawRecentAssignments } = await supabase
       .from("assignments")
       .select(`
         id,
@@ -185,6 +225,8 @@ export async function getRecentItems(): Promise<SearchResult[]> {
       .in("group_id", groupIds)
       .order("created_at", { ascending: false })
       .limit(3)
+
+    const recentAssignments = rawRecentAssignments as AssignmentRow[] | null
 
     recentAssignments?.forEach((a) => {
       results.push({

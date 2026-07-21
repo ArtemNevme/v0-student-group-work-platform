@@ -14,6 +14,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Bell } from "lucide-react"
 import { markNotificationAsRead, markAllNotificationsAsRead } from "@/lib/actions/notifications"
+import type { RealtimePostgresChangesPayload } from "@supabase/realtime-js"
 import { useRouter } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 
@@ -50,7 +51,7 @@ export function NotificationCenter({ initialNotifications }: NotificationCenterP
           schema: "public",
           table: "notifications",
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
           setNotifications((prev) => [payload.new as Notification, ...prev])
         },
       )

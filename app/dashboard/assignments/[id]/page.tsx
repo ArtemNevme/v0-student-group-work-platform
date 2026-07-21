@@ -192,7 +192,7 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
           )}
           <EditAssignmentDialog assignment={assignment} />
           {isCreator && (
-            <form action={deleteAssignmentAndRedirect.bind(null, id)}>
+            <form action={async () => { await deleteAssignmentAndRedirect(id) }}>
               <Button type="submit" variant="ghost" size="sm" className="text-danger hover:text-danger">
                 <Trash2 className="h-4 w-4" strokeWidth={1.75} />
               </Button>

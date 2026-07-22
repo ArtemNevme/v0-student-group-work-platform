@@ -162,7 +162,7 @@ export default function SignUpPage() {
                 </div>
                 {error && (
                   <div className="rounded-md bg-danger/10 text-danger p-3">
-                    <p className="text-sm text-red-800">{error}</p>
+                    <p className="text-sm text-danger">{error}</p>
                   </div>
                 )}
                 <Button type="submit" className="w-full" disabled={isLoading}>

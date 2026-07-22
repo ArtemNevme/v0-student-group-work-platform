@@ -4,6 +4,7 @@ import { acceptInvitation } from "@/lib/actions/groups"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { cleanDisplayName } from "@/lib/utils"
 
 export default async function AcceptInvitationPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params
@@ -51,7 +52,7 @@ export default async function AcceptInvitationPage({ params }: { params: Promise
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg bg-blue-50 p-4">
-            <h3 className="font-semibold text-gray-900">{invitation.groups.name}</h3>
+            <h3 className="font-semibold text-gray-900">{cleanDisplayName(invitation.groups.name)}</h3>
             {invitation.groups.description && (
               <p className="mt-1 text-sm text-gray-600">{invitation.groups.description}</p>
             )}

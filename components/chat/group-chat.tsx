@@ -13,7 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Send, Smile, Reply, Pencil, Trash2, X, Paperclip, Search } from "lucide-react"
+import { Send, Smile, Reply, Pencil, Trash2, X, Paperclip, Search, MessageSquare } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { sendMessage, editMessage, deleteMessage, addReaction, removeReaction } from "@/lib/actions/messages"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -384,8 +385,15 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
       <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {filteredMessages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p>{searchQuery ? "No messages found" : "No messages yet. Start the conversation!"}</p>
+            <div className="flex h-full items-center justify-center">
+              <EmptyState
+                icon={MessageSquare}
+                title={searchQuery ? "No messages found" : "No messages yet"}
+                description={
+                  searchQuery ? "Try a different search term." : "Start the conversation by sending a message below."
+                }
+                className="border-none bg-transparent p-4"
+              />
             </div>
           ) : (
             filteredMessages.map((message) => {

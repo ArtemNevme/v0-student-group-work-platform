@@ -35,6 +35,7 @@ import {
   Check,
   GripVertical,
 } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -547,13 +548,16 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
 
       {/* Empty state */}
       {filteredTasks.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          {searchQuery || filter !== "all" ? (
-            <p>No tasks match your filters</p>
-          ) : (
-            <p>No tasks yet. Add tasks to get started!</p>
-          )}
-        </div>
+        <EmptyState
+          icon={searchQuery || filter !== "all" ? Search : CheckCircle2}
+          title={searchQuery || filter !== "all" ? "No tasks match your filters" : "No tasks yet"}
+          description={
+            searchQuery || filter !== "all"
+              ? "Try adjusting your search or filters."
+              : "Add tasks to get started with this assignment."
+          }
+          variant="card"
+        />
       )}
 
       {/* Completion dialog */}

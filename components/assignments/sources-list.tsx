@@ -21,6 +21,7 @@ import { BookOpen, Newspaper, FlaskConical, Video, LinkIcon, Plus, Trash2, Exter
 import { addLink, deleteLink } from "@/lib/actions/files"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Source {
   id: string
@@ -190,9 +191,12 @@ export function SourcesList({ assignmentId, sources }: SourcesListProps) {
       </CardHeader>
       <CardContent>
         {sources.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">
-            No sources added yet. Add helpful resources to support your work.
-          </div>
+          <EmptyState
+            icon={LinkIcon}
+            title="No sources added yet"
+            description="Add helpful resources to support your work."
+            variant="card"
+          />
         ) : (
           <div className="space-y-3">
             {sources.map((source) => {

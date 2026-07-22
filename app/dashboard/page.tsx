@@ -17,7 +17,7 @@ import { Leaderboard } from "@/components/gamification/leaderboard"
 import { Button } from "@/components/ui/button"
 import { BookOpen, ArrowRight, Plus, Users } from "lucide-react"
 import { SubjectCard } from "@/components/subjects/subject-card"
-import { Card, CardContent } from "@/components/ui/card"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -100,18 +100,12 @@ export default async function DashboardPage() {
           {leaderboardMembers.length > 0 ? (
             <Leaderboard members={leaderboardMembers} currentUserId={user.id} />
           ) : (
-            <Card>
-              <CardContent className="flex flex-col items-center py-8 text-center">
-                <Users className="mb-3 h-8 w-8 text-muted-foreground" strokeWidth={1.75} />
-                <p className="mb-1 text-sm font-medium text-foreground">No leaderboard yet</p>
-                <p className="mb-4 text-xs text-muted-foreground">
-                  Create a group or join an existing one to compete with classmates
-                </p>
-                <Button asChild size="sm">
-                  <Link href="/dashboard/groups">Create group</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={Users}
+              title="No leaderboard yet"
+              description="Create a group or join an existing one to compete with classmates."
+              action={{ label: "Create group", href: "/dashboard/groups" }}
+            />
           )}
 
           <RecentActivity activities={notifications || []} />
@@ -136,16 +130,12 @@ export default async function DashboardPage() {
             ))}
           </div>
         ) : (
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground mb-4">
-                No subjects yet. Connect Google Classroom to sync your courses.
-              </p>
-              <Link href="/dashboard/google-classroom">
-                <Button>Connect Google Classroom</Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={BookOpen}
+            title="No subjects yet"
+            description="Connect Google Classroom to sync your courses and assignments."
+            action={{ label: "Connect Google Classroom", href: "/dashboard/google-classroom" }}
+          />
         )}
       </section>
 

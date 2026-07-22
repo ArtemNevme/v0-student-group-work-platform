@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, ArrowRight } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
 
 interface AssignmentCardProps {
   assignment: {
@@ -63,7 +64,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
                 />
               </CardTitle>
               <p className="text-sm text-muted-foreground font-medium">
-                {assignment.groups ? assignment.groups.name : "From Google Classroom"}
+                {assignment.groups ? cleanDisplayName(assignment.groups.name) : "From Google Classroom"}
               </p>
             </div>
             <Badge className={`${statusColors[assignment.status as keyof typeof statusColors]} border`}>

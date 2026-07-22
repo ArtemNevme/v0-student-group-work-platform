@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, BookOpen, Code, Briefcase, GraduationCap, ArrowRight } from "lucide-react"
+import { cleanDisplayName } from "@/lib/utils"
 
 interface GroupCardProps {
   group: {
@@ -36,7 +37,7 @@ export function GroupCard({ group, role }: GroupCardProps) {
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="font-display text-base font-medium tracking-[-0.01em] text-foreground truncate transition-colors duration-150 group-hover:text-accent-fg flex items-center gap-2">
-                {group.name}
+                {cleanDisplayName(group.name)}
                 <ArrowRight
                   className="h-4 w-4 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                   strokeWidth={1.75}

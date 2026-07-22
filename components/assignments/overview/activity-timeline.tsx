@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CheckCircle2, FileUp, Link2, MessageSquare, UserPlus, Clock } from "lucide-react"
+import { CheckCircle2, FileUp, Link2, MessageSquare, UserPlus, Clock, Activity } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Activity {
   id: string
@@ -106,11 +107,11 @@ export function ActivityTimeline({ tasks, files, links }: ActivityTimelineProps)
 
   if (sortedActivities.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Clock className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" strokeWidth={1.75} />
-        <p className="text-muted-foreground">No activity yet</p>
-        <p className="text-xs text-muted-foreground mt-1">Activity will appear here as you work</p>
-      </div>
+      <EmptyState
+        icon={Activity}
+        title="No activity yet"
+        description="Activity will appear here as team members complete tasks, upload files, and add links."
+      />
     )
   }
 

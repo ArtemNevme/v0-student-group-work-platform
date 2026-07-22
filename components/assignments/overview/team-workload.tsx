@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface TeamMember {
   id: string
@@ -63,10 +64,11 @@ export function TeamWorkload({ tasks, members }: TeamWorkloadProps) {
 
   if (members.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Users className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" strokeWidth={1.75} />
-        <p className="text-muted-foreground">No team members yet</p>
-      </div>
+      <EmptyState
+        icon={Users}
+        title="No team members yet"
+        description="Invite classmates to the group to see their workload."
+      />
     )
   }
 

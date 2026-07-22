@@ -31,6 +31,7 @@ import { completeAssignment } from "@/lib/actions/assignments"
 import { toast } from "sonner"
 import { ImportAssignmentDialog } from "@/components/my-tasks/import-assignment-dialog"
 import { QuickCreateAssignmentDialog } from "@/components/my-tasks/quick-create-assignment-dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import type { TaskItem } from "./page"
 
 interface MyTasksClientProps {
@@ -252,6 +253,60 @@ export function MyTasksClient({
     return Array.from(uniqueSubjects).sort()
   }, [tasks, sourceFilter])
 
+  const emptyState = useMemo(() => {
+    if (activeTab === "done") {
+      return {
+        icon: CheckCircle2,
+        title: "No completed tasks yet",
+        description: "Complete some tasks to see them here.",
+        action: null,
+      }
+    }
+
+    if (sourceFilter === "google") {
+      return {
+        icon: GraduationCap,
+        title: "No Google Classroom assignments",
+        description: "Connect Google Classroom to sync your assignments.",
+        action: !isGoogleConnected
+          ? { label: "Connect Google Classroom", href: "/dashboard/google-classroom" }
+          : null,
+      }
+    }
+
+    if (sourceFilter === "studysync") {
+      return {
+        icon: Users,
+        title: "No StudySync assignments",
+        description:
+          groups.length > 0
+            ? "Create a new assignment to get started."
+            : "Join or create a group first to get started.",
+        action:
+          groups.length > 0 ? (
+            <QuickCreateAssignmentDialog groups={groups}>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
+                Create Assignment
+              </Button>
+            </QuickCreateAssignmentDialog>
+          ) : (
+            { label: "Join or create a group", href: "/dashboard/groups" }
+          ),
+      }
+    }
+
+    return {
+      icon: CheckCircle2,
+      title: "All caught up!",
+      description: "No pending tasks right now.",
+      action:
+        groups.length === 0
+          ? { label: "Join or create a group first", href: "/dashboard/groups" }
+          : null,
+    }
+  }, [activeTab, sourceFilter, isGoogleConnected, groups])
+
   const allCount = tasks.filter((task) => !task.isCompleted).length
   const overdueCount = tasks.filter(
     (task) => task.deadline && new Date(task.deadline) < new Date() && !task.isCompleted,
@@ -441,7 +496,7 @@ export function MyTasksClient({
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as "subject" | "deadline")}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -475,56 +530,13 @@ export function MyTasksClient({
 
       {/* Empty state with create button */}
       {filteredTasks.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="rounded-full bg-secondary p-3 mb-4">
-              {sourceFilter === "google" ? (
-                <GraduationCap className="h-8 w-8 text-muted-foreground" strokeWidth={1.75} />
-              ) : sourceFilter === "studysync" ? (
-                <Users className="h-8 w-8 text-muted-foreground" strokeWidth={1.75} />
-              ) : (
-                <CheckCircle2 className="h-8 w-8 text-muted-foreground" strokeWidth={1.75} />
-              )}
-            </div>
-            <h3 className="font-display font-medium tracking-[-0.01em] text-foreground">
-              {activeTab === "done"
-                ? "No completed tasks yet"
-                : sourceFilter === "google"
-                  ? "No Google Classroom assignments"
-                  : sourceFilter === "studysync"
-                    ? "No StudySync assignments"
-                    : "All caught up!"}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
-              {activeTab === "done"
-                ? "Complete some tasks to see them here"
-                : sourceFilter === "google"
-                  ? "Connect Google Classroom to sync your assignments"
-                  : sourceFilter === "studysync"
-                    ? "Create a new assignment to get started"
-                    : "No pending tasks right now"}
-            </p>
-            {sourceFilter === "google" && !isGoogleConnected ? (
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/google-classroom" className="gap-2">
-                  <GraduationCap className="h-4 w-4" strokeWidth={1.75} />
-                  Connect Google Classroom
-                </Link>
-              </Button>
-            ) : sourceFilter === "studysync" && groups.length > 0 ? (
-              <QuickCreateAssignmentDialog groups={groups}>
-                <Button variant="outline" className="gap-2">
-                  <Plus className="h-4 w-4" strokeWidth={1.75} />
-                  Create Assignment
-                </Button>
-              </QuickCreateAssignmentDialog>
-            ) : groups.length === 0 && sourceFilter !== "google" ? (
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/groups">Join or create a group first</Link>
-              </Button>
-            ) : null}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={emptyState.icon}
+          title={emptyState.title}
+          description={emptyState.description}
+          action={emptyState.action}
+          variant="card"
+        />
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedTasks).map(([subjectName, subjectTasks]) => {

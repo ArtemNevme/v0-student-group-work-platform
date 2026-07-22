@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, ListChecks, Calendar, Users, BookOpen, Bell, User } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, cleanDisplayName } from "@/lib/utils"
 
 export interface SidebarGroup {
   id: string
@@ -14,6 +14,7 @@ export interface DashboardSidebarProps {
   groups: SidebarGroup[]
   level: number
   points: number
+  onItemClick?: () => void
 }
 
 const NAV_ITEMS = [
@@ -39,7 +40,7 @@ function navItemClass(active: boolean) {
 }
 
 /** Содержимое сайдбара — используется и в десктопной колонке, и в мобильном Sheet */
-export function SidebarContent({ groups, level, points }: DashboardSidebarProps) {
+export function SidebarContent({ groups, level, points, onItemClick }: DashboardSidebarProps) {
   const pathname = usePathname()
 
   const xpForNextLevel = level * 100
@@ -59,7 +60,7 @@ export function SidebarContent({ groups, level, points }: DashboardSidebarProps)
 
       <nav className="flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href} className={navItemClass(isActive(pathname, item.href))}>
+          <Link key={item.href} href={item.href} onClick={onItemClick} className={navItemClass(isActive(pathname, item.href))}>
             <item.icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
             <span className="truncate">{item.label}</span>
           </Link>
@@ -76,6 +77,7 @@ export function SidebarContent({ groups, level, points }: DashboardSidebarProps)
               <Link
                 key={group.id}
                 href={`/dashboard/groups/${group.id}`}
+                onClick={onItemClick}
                 className={navItemClass(isActive(pathname, `/dashboard/groups/${group.id}`))}
               >
                 <span
@@ -84,7 +86,7 @@ export function SidebarContent({ groups, level, points }: DashboardSidebarProps)
                     index === 0 ? "bg-primary" : "bg-muted-foreground/40",
                   )}
                 />
-                <span className="truncate">{group.name}</span>
+                <span className="truncate">{cleanDisplayName(group.name)}</span>
               </Link>
             ))}
           </nav>

@@ -6,6 +6,7 @@ import { Calendar, AlertCircle, ExternalLink, Clock, CheckCircle2 } from "lucide
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { cleanDisplayName } from "@/lib/utils"
 
 interface Assignment {
   id: string
@@ -74,7 +75,7 @@ export function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps) {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mb-2">{assignment.groups.name}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{cleanDisplayName(assignment.groups.name)}</p>
                     <span
                       className={`inline-flex rounded-chip px-2 py-0.5 font-num text-[11px] font-medium ${getDeadlineBadgeClass(assignment.deadline)}`}
                     >

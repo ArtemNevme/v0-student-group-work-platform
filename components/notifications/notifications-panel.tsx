@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Bell, Check, Mail, MessageSquare, Trophy, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { EmptyState } from "@/components/ui/empty-state"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { getMyNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "@/lib/actions/notifications"
@@ -11,6 +12,7 @@ import { getPendingInvitations } from "@/lib/actions/notifications"
 import { acceptInvitation } from "@/lib/actions/groups"
 import type { RealtimePostgresChangesPayload, REALTIME_SUBSCRIBE_STATES } from "@supabase/realtime-js"
 import { useRouter } from "next/navigation"
+import { cleanDisplayName } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 
@@ -205,21 +207,21 @@ export function NotificationsPanel() {
       {invitations.length > 0 && (
         <Card className="p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-semibold">Pending Invitations</h3>
+            <h3 className="font-display text-[17px] font-medium tracking-[-0.01em]">Pending Invitations</h3>
             <Badge variant="secondary">{invitations.length}</Badge>
           </div>
           <ScrollArea className="max-h-[300px]">
             <div className="space-y-3">
               {invitations.map((invitation) => (
-                <div key={invitation.id} className="rounded-lg border bg-blue-50 p-3">
+                <div key={invitation.id} className="rounded-lg border bg-accent-soft p-3">
                   <div className="mb-2 flex items-start justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">{invitation.groups.name}</p>
-                      <p className="text-sm text-gray-600">Invited by {invitation.profiles.full_name || "Someone"}</p>
+                      <p className="font-medium text-foreground">{cleanDisplayName(invitation.groups.name)}</p>
+                      <p className="text-sm text-muted-foreground">Invited by {invitation.profiles.full_name || "Someone"}</p>
                       {invitation.groups.description && (
-                        <p className="mt-1 text-sm text-gray-500">{invitation.groups.description}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{invitation.groups.description}</p>
                       )}
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {invitation.groups.member_count} / {invitation.groups.max_members} members
                       </p>
                     </div>
@@ -232,7 +234,7 @@ export function NotificationsPanel() {
                       Decline
                     </Button>
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Expires {formatDistanceToNow(new Date(invitation.expires_at), { addSuffix: true })}
                   </p>
                 </div>
@@ -245,7 +247,7 @@ export function NotificationsPanel() {
       {/* Notifications */}
       <Card className="p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-semibold">Notifications</h3>
+          <h3 className="font-display text-[17px] font-medium tracking-[-0.01em]">Notifications</h3>
           <div className="flex items-center gap-2">
             {unreadCount > 0 && <Badge variant="secondary">{unreadCount} new</Badge>}
             {unreadCount > 0 && (
@@ -257,19 +259,24 @@ export function NotificationsPanel() {
         </div>
 
         {notifications.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No notifications yet</p>
+          <EmptyState
+            icon={Bell}
+            title="No notifications yet"
+            description="You're all caught up. New notifications will appear here."
+            variant="card"
+          />
         ) : (
           <ScrollArea className="max-h-[400px]">
             <div className="space-y-2">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`rounded-lg border p-3 transition-colors ${notification.read ? "bg-gray-50" : "bg-white"}`}
+                  className={`rounded-lg border p-3 transition-colors ${notification.read ? "bg-secondary" : "bg-card"}`}
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className={`rounded-full p-2 ${
-                        notification.read ? "bg-gray-200 text-gray-600" : "bg-blue-100 text-blue-600"
+                        notification.read ? "bg-secondary text-muted-foreground" : "bg-accent-soft text-accent-fg"
                       }`}
                     >
                       {getNotificationIcon(notification.type)}
@@ -277,9 +284,9 @@ export function NotificationsPanel() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-medium text-gray-900">{notification.title}</p>
-                          <p className="text-sm text-gray-600">{notification.message}</p>
-                          <p className="mt-1 text-xs text-gray-500">
+                          <p className="font-medium text-foreground">{notification.title}</p>
+                          <p className="text-sm text-muted-foreground">{notification.message}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                           </p>
                         </div>

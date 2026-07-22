@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress"
 import Link from "next/link"
 import { ArrowLeft, Calendar, Trash2, Clock, Users, CheckCircle2, AlertCircle } from "lucide-react"
 import { format } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
 import { AddToTeamDialog } from "@/components/assignments/add-to-team-dialog"
 
 export default async function AssignmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -184,7 +185,7 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
           className="inline-flex items-center text-sm text-muted-foreground transition-colors duration-150 hover:text-accent-fg"
         >
           <ArrowLeft className="mr-2 h-4 w-4" strokeWidth={1.75} />
-          {assignment.groups.name}
+          {cleanDisplayName(assignment.groups.name)}
         </Link>
         <div className="flex items-center gap-2">
           {assignment.status !== "completed" && (
@@ -192,7 +193,10 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
           )}
           <EditAssignmentDialog assignment={assignment} />
           {isCreator && (
-            <form action={async () => { await deleteAssignmentAndRedirect(id) }}>
+            <form action={async () => {
+              "use server"
+              await deleteAssignmentAndRedirect(id)
+            }}>
               <Button type="submit" variant="ghost" size="sm" className="text-danger hover:text-danger">
                 <Trash2 className="h-4 w-4" strokeWidth={1.75} />
               </Button>
@@ -218,7 +222,7 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Users className="h-4 w-4" strokeWidth={1.75} />
-                    {assignment.groups.name}
+                    {cleanDisplayName(assignment.groups.name)}
                   </span>
                   <span className="flex items-center gap-1">Created by {assignment.profiles.full_name}</span>
                   <span className="flex items-center gap-1">

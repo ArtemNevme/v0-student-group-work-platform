@@ -2,6 +2,8 @@
 
 import Link from "next/link"
 import { Users, ArrowRight } from "lucide-react"
+import { cleanDisplayName } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Group {
   groups: {
@@ -20,11 +22,12 @@ interface QuickAccessGroupsProps {
 export function QuickAccessGroups({ groups }: QuickAccessGroupsProps) {
   if (groups.length === 0) {
     return (
-      <div className="rounded-card border border-dashed border-border p-8 text-center">
-        <Users className="h-10 w-10 text-muted-foreground mx-auto mb-3" strokeWidth={1.75} />
-        <p className="text-sm text-muted-foreground">No groups yet</p>
-        <p className="text-xs text-muted-foreground mt-1">Create your first group to get started</p>
-      </div>
+      <EmptyState
+        icon={Users}
+        title="No groups yet"
+        description="Create your first group to start collaborating with classmates."
+        action={{ label: "Create group", href: "/dashboard/groups" }}
+      />
     )
   }
 
@@ -42,11 +45,11 @@ export function QuickAccessGroups({ groups }: QuickAccessGroupsProps) {
           <div className="flex flex-col h-full">
             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-control bg-secondary border border-border">
               <span className="font-display text-sm font-semibold text-foreground">
-                {item.groups.name.substring(0, 2).toUpperCase()}
+                {cleanDisplayName(item.groups.name).substring(0, 2).toUpperCase()}
               </span>
             </div>
 
-            <h4 className="font-medium text-foreground text-sm truncate mb-1">{item.groups.name}</h4>
+            <h4 className="font-medium text-foreground text-sm truncate mb-1">{cleanDisplayName(item.groups.name)}</h4>
 
             {item.groups.subject && <span className="text-xs text-muted-foreground truncate">{item.groups.subject}</span>}
 

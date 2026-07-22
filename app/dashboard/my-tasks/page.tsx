@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/google-classroom"
 import { getMyGroups } from "@/lib/actions/groups"
 import { differenceInCalendarDays, startOfDay } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
 import { MyTasksClient } from "./client"
 
 export interface TaskItem {
@@ -131,7 +132,7 @@ export default async function MyTasksPage() {
         deadline: a.deadline,
         status: a.status,
         sourceId: a.groups?.id || "",
-        sourceName: a.groups?.name || "Unknown Group",
+        sourceName: cleanDisplayName(a.groups?.name) || "Unknown Group",
         sourceType: "group" as const,
         link: `/dashboard/assignments/${a.id}`,
         externalLink: null,
@@ -185,11 +186,11 @@ export default async function MyTasksPage() {
   const archivedCount = hiddenStudySync + hiddenGoogle
 
   const sources = [
-    ...groups.map((g) => ({ id: g.id, name: g.name, type: "group" as const })),
-    ...(courses || []).map((c) => ({ id: c.id, name: c.name, type: "course" as const })),
+    ...groups.map((g) => ({ id: g.id, name: cleanDisplayName(g.name), type: "group" as const })),
+    ...(courses || []).map((c) => ({ id: c.id, name: cleanDisplayName(c.name), type: "course" as const })),
   ]
 
-  const userGroupsForImport = groups.map((g) => ({ id: g.id, name: g.name }))
+  const userGroupsForImport = groups.map((g) => ({ id: g.id, name: cleanDisplayName(g.name) }))
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">

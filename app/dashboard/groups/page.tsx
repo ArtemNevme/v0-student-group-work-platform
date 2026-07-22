@@ -4,10 +4,12 @@ import { createClient } from "@/lib/supabase/server"
 import { getMyGroups } from "@/lib/actions/groups"
 import { getMySubjects } from "@/lib/actions/subjects"
 import { CreateGroupDialog } from "@/components/groups/create-group-dialog"
+import { GroupsEmptyState } from "@/components/groups/groups-empty-state"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Users, Plus, ArrowRight, Crown, Calendar } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
 
 export default async function GroupsPage() {
   const supabase = await createClient()
@@ -44,19 +46,7 @@ export default async function GroupsPage() {
 
         {/* Groups Grid */}
         {!groups || groups.length === 0 ? (
-          <div className="rounded-card border border-dashed border-border p-12 text-center">
-            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" strokeWidth={1.75} />
-            <h3 className="text-lg font-medium text-foreground mb-2">No groups yet</h3>
-            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-              Create your first group to start collaborating with classmates on assignments
-            </p>
-            <CreateGroupDialog subjects={subjects}>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" strokeWidth={1.75} />
-                Create your first group
-              </Button>
-            </CreateGroupDialog>
-          </div>
+          <GroupsEmptyState subjects={subjects || []} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {groups.map((item) => (
@@ -69,14 +59,14 @@ export default async function GroupsPage() {
                   {/* Group Icon */}
                   <div className="h-12 w-12 rounded-control bg-secondary border border-border flex items-center justify-center flex-shrink-0">
                     <span className="font-display font-semibold text-base text-foreground">
-                      {item.groups.name.substring(0, 2).toUpperCase()}
+                      {cleanDisplayName(item.groups.name).substring(0, 2).toUpperCase()}
                     </span>
                   </div>
 
                   {/* Group Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground truncate">{item.groups.name}</h3>
+                      <h3 className="font-semibold text-foreground truncate">{cleanDisplayName(item.groups.name)}</h3>
                       {item.role === "admin" && <Crown className="h-4 w-4 text-accent-fg flex-shrink-0" />}
                     </div>
 

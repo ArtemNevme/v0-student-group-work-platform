@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { UserPlus, Search, UserMinus, Loader2 } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { getMyFriends, searchUsers, addFriend, removeFriend } from "@/lib/actions/friends"
 import { toast } from "sonner"
 
@@ -139,9 +140,12 @@ export function FriendsList() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : friends.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-8">
-            No friends yet. Add some friends to get started!
-          </p>
+          <EmptyState
+            icon={UserPlus}
+            title="No friends yet"
+            description="Add some friends to get started."
+            variant="card"
+          />
         ) : (
           <div className="space-y-2">
             {friends.map((friend) => (

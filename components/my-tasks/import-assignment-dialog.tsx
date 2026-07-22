@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Users, Loader2, CheckCircle2, ExternalLink } from "lucide-react"
 import { importToStudySyncByGoogleId } from "@/lib/actions/google-classroom"
-import { cn } from "@/lib/utils"
+import { cn, cleanDisplayName } from "@/lib/utils"
 
 interface Group {
   id: string
@@ -127,7 +127,7 @@ export function ImportAssignmentDialog({ open, onOpenChange, assignment, userGro
                       <RadioGroupItem value={group.id} id={group.id} />
                       <Label htmlFor={group.id} className="flex-1 cursor-pointer flex items-center gap-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        {group.name}
+                        {cleanDisplayName(group.name)}
                       </Label>
                     </div>
                   ))}

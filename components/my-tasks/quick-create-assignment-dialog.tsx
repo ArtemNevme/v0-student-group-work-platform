@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createAssignmentWithOptions } from "@/lib/actions/assignments"
+import { cleanDisplayName } from "@/lib/utils"
 import { Loader2, Calendar, Users } from "lucide-react"
 import { format, addDays, nextFriday, addWeeks } from "date-fns"
 import { toast } from "sonner"
@@ -147,7 +148,7 @@ export function QuickCreateAssignmentDialog({ groups, children }: QuickCreateAss
               <SelectContent>
                 {groups.map((group) => (
                   <SelectItem key={group.id} value={group.id}>
-                    {group.name}
+                    {cleanDisplayName(group.name)}
                   </SelectItem>
                 ))}
               </SelectContent>

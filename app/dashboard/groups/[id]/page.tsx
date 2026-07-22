@@ -15,7 +15,9 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { ArrowLeft, UserMinus } from "lucide-react"
+import { ArrowLeft, UserMinus, ClipboardList } from "lucide-react"
+import { cleanDisplayName } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/empty-state"
 import { LeaveGroupButton } from "@/components/groups/leave-group-button"
 
 export default async function GroupDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -76,7 +78,7 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
         <div className="mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">{group.name}</h1>
+              <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">{cleanDisplayName(group.name)}</h1>
               {group.category && <p className="mt-1 text-sm text-muted-foreground">{group.category}</p>}
               {group.description && <p className="mt-2 text-muted-foreground">{group.description}</p>}
             </div>
@@ -107,15 +109,20 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
                     {assignments.map((assignment) => (
                       <AssignmentCard
                         key={assignment.id}
-                        assignment={{ ...assignment, groups: { id: group.id, name: group.name } }}
+                        assignment={{ ...assignment, groups: { id: group.id, name: cleanDisplayName(group.name) } }}
                       />
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <p className="text-muted-foreground">No assignments yet</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Create an assignment to get started</p>
-                  </div>
+                  <EmptyState
+                    icon={ClipboardList}
+                    title="No assignments yet"
+                    description="Create an assignment to get started."
+                    action={
+                      <CreateAssignmentWizard groupId={group.id} />
+                    }
+                    variant="card"
+                  />
                 )}
               </CardContent>
             </Card>

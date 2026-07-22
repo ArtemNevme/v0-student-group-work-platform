@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { CheckSquare, Circle } from "lucide-react"
+import { cleanDisplayName } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Task {
@@ -73,7 +74,7 @@ export function MyTasks({ tasks }: MyTasksProps) {
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-foreground truncate">{taskAssignment.tasks.title}</h4>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {taskAssignment.tasks.assignments.groups.name}
+                      {cleanDisplayName(taskAssignment.tasks.assignments.groups.name)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {taskAssignment.tasks.assignments.title} ·{" "}

@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Task {
   id: string
@@ -87,11 +89,11 @@ export function PriorityTasks({ tasks }: PriorityTasksProps) {
 
   if (priorityTasks.length === 0) {
     return (
-      <div className="rounded-card border border-dashed border-border bg-card p-8 text-center">
-        <CheckCircle2 className="h-10 w-10 text-success mx-auto mb-3" strokeWidth={1.75} />
-        <h3 className="font-display font-medium text-foreground">All done!</h3>
-        <p className="text-sm text-muted-foreground mt-1">No tasks in progress right now</p>
-      </div>
+      <EmptyState
+        icon={CheckCircle2}
+        title="All done!"
+        description="No tasks in progress right now."
+      />
     )
   }
 
@@ -118,7 +120,7 @@ export function PriorityTasks({ tasks }: PriorityTasksProps) {
             >
               <div className="flex-1 min-w-0">
                 <h4 className="text-[13.5px] font-medium text-foreground truncate">{task.tasks.title}</h4>
-                <p className="text-[11.5px] text-muted-foreground mt-0.5">{task.tasks.assignments.groups.name}</p>
+                <p className="text-[11.5px] text-muted-foreground mt-0.5">{cleanDisplayName(task.tasks.assignments.groups.name)}</p>
               </div>
               <span
                 className={`flex shrink-0 items-center gap-1.5 rounded-chip px-2 py-0.5 font-num text-[11px] font-medium ${getBadgeClass(urgency)}`}

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu } from "lucide-react"
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { GlobalSearch } from "@/components/search/global-search"
@@ -48,9 +48,10 @@ export function DashboardTopbar({ groups, level, points, fullName, avatarUrl }: 
       </header>
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="w-60 p-0" onClick={() => setMenuOpen(false)}>
+        <SheetContent side="left" className="w-60 p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <SidebarContent groups={groups} level={level} points={points} />
+          <SheetDescription className="sr-only">Dashboard navigation menu</SheetDescription>
+          <SidebarContent groups={groups} level={level} points={points} onItemClick={() => setMenuOpen(false)} />
         </SheetContent>
       </Sheet>
     </>

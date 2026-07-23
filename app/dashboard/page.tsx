@@ -142,7 +142,7 @@ export default async function DashboardPage() {
       <Link href="/dashboard/my-tasks">
         <Button
           size="lg"
-          className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+          className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-control bg-primary text-primary-foreground hover:bg-primary/90"
           aria-label="New task"
         >
           <Plus className="h-5 w-5" strokeWidth={1.75} />

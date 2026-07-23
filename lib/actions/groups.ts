@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { nanoid } from "nanoid"
+import { createNotification } from "./notifications"
 
 export async function createGroup(data: {
   name: string
@@ -174,6 +175,9 @@ export async function inviteMember(groupId: string, email: string) {
   if (!membership) {
     return { error: "You are not a member of this group" }
   }
+  if (membership.role !== "admin") {
+    return { error: "Only group admins can invite members" }
+  }
 
   const { data: group } = await supabase.from("groups").select("name").eq("id", groupId).single()
 
@@ -227,13 +231,13 @@ export async function inviteMember(groupId: string, email: string) {
   }
 
   if (profile) {
-    await supabase.from("notifications").insert({
-      user_id: profile.id,
-      type: "invitation",
-      title: "Group Invitation",
-      message: `You've been invited to join "${group.name}"`,
-      link: `/invitations/${inviteCode}`,
-    })
+    await createNotification(
+      profile.id,
+      "invitation",
+      "Group Invitation",
+      `You've been invited to join "${group.name}"`,
+      `/invitations/${inviteCode}`,
+    )
   }
 
   revalidatePath(`/dashboard/groups/${groupId}`)
@@ -250,15 +254,11 @@ export async function acceptInvitation(inviteCode: string) {
     return { error: "Not authenticated" }
   }
 
-  console.log("[v0] Accept invitation attempt:", { inviteCode, userId: user.id })
-
   const { data: invitation, error: inviteError } = await supabase
     .from("invitations")
     .select("*, groups(*)")
     .eq("invite_code", inviteCode)
     .maybeSingle()
-
-  console.log("[v0] Invitation found:", { invitation, error: inviteError })
 
   if (inviteError || !invitation) {
     return { error: "Invalid invitation code" }
@@ -274,7 +274,9 @@ export async function acceptInvitation(inviteCode: string) {
 
   const { data: profile } = await supabase.from("profiles").select("email").eq("id", user.id).single()
 
-  console.log("[v0] User profile email:", profile?.email, "Invited email:", invitation.invited_email)
+  if (!profile?.email || profile.email.toLowerCase() !== invitation.invited_email.toLowerCase()) {
+    return { error: "This invitation was issued for a different email address" }
+  }
 
   // Check if already a member
   const { data: existingMember } = await supabase
@@ -298,8 +300,6 @@ export async function acceptInvitation(inviteCode: string) {
     user_id: user.id,
     role: "member",
   })
-
-  console.log("[v0] Member insert result:", { error: memberError })
 
   if (memberError) {
     return { error: memberError.message }
@@ -401,10 +401,8 @@ export async function removeMember(groupId: string, userId: string) {
   if (!membership) {
     return { error: "You are not a member of this group" }
   }
-
-  // Check if current user is admin
   if (membership.role !== "admin") {
-    return { error: "Only admins can remove members" }
+    return { error: "Only group admins can remove members" }
   }
 
   // Remove member
@@ -439,13 +437,15 @@ export async function addFriendToGroup(groupId: string, friendId: string) {
   if (!membership) {
     return { error: "You are not a member of this group" }
   }
+  if (membership.role !== "admin") {
+    return { error: "Only group admins can add friends to a group" }
+  }
 
   // Check if they are friends
   const { data: friendship } = await supabase
     .from("friends")
     .select("*")
-    .eq("user_id", user.id)
-    .eq("friend_id", friendId)
+    .or(`and(user_id.eq.${user.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${user.id})`)
     .eq("status", "accepted")
     .single()
 
@@ -487,13 +487,13 @@ export async function addFriendToGroup(groupId: string, friendId: string) {
   const { data: groupData } = await supabase.from("groups").select("name").eq("id", groupId).single()
   const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single()
 
-  await supabase.from("notifications").insert({
-    user_id: friendId,
-    type: "group_added",
-    title: "Added to Group",
-    message: `${profile?.full_name || "Someone"} added you to "${groupData?.name || "a group"}"`,
-    link: `/dashboard/groups/${groupId}`,
-  })
+  await createNotification(
+    friendId,
+    "group_added",
+    "Added to Group",
+    `${profile?.full_name || "Someone"} added you to "${groupData?.name || "a group"}"`,
+    `/dashboard/groups/${groupId}`,
+  )
 
   revalidatePath(`/dashboard/groups/${groupId}`)
   return { success: true }

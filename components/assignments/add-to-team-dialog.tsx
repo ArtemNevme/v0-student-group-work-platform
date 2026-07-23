@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -34,18 +34,18 @@ export function AddToTeamDialog({ assignment }: AddToTeamDialogProps) {
   const [teams, setTeams] = useState<any[]>([])
   const [selectedTeam, setSelectedTeam] = useState<string>("")
 
-  useEffect(() => {
-    if (open) {
-      loadTeams()
-    }
-  }, [open])
-
-  const loadTeams = async () => {
+  const loadTeams = useCallback(async () => {
     const result = await getMyStudyTeams(assignment.subject_id)
     if (result.teams) {
       setTeams(result.teams)
     }
-  }
+  }, [assignment.subject_id])
+
+  useEffect(() => {
+    if (open) {
+      void loadTeams()
+    }
+  }, [loadTeams, open])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

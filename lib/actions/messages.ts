@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { createNotification } from "./notifications"
 
 export async function sendMessage(groupId: string, content: string, assignmentId?: string, replyToId?: string) {
   const supabase = await createClient()
@@ -74,7 +75,11 @@ export async function sendMessage(groupId: string, content: string, assignmentId
         }
       })
 
-    await supabase.from("notifications").insert(notifications)
+    await Promise.all(
+      notifications.map((notification) =>
+        createNotification(notification.user_id, notification.type, notification.title, notification.message, notification.link),
+      ),
+    )
   }
 
   revalidatePath(`/dashboard/groups/${groupId}`)

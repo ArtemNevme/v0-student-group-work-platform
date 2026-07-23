@@ -84,12 +84,12 @@ export function FileUpload({ assignmentId, files: initialFiles }: FileUploadProp
     }
   }
 
-  const handleDelete = async (fileId: string, fileUrl: string) => {
+  const handleDelete = async (fileId: string) => {
     try {
       const response = await fetch("/api/delete-file", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId, fileUrl }),
+        body: JSON.stringify({ fileId }),
       })
 
       if (!response.ok) {
@@ -168,7 +168,7 @@ export function FileUpload({ assignmentId, files: initialFiles }: FileUploadProp
                       <Download className="h-4 w-4" />
                     </a>
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(file.id, file.file_url)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(file.id)}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>

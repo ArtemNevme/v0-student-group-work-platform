@@ -144,8 +144,8 @@ export default function LoginPage() {
                   />
                 </div>
                 {error && (
-                  <div className="rounded-md bg-danger/10 text-danger p-3">
-                    <p className="text-sm text-red-800">{error}</p>
+                  <div className="rounded-chip border border-danger/30 bg-danger/10 p-3 text-danger">
+                    <p className="text-sm">{error}</p>
                   </div>
                 )}
                 <Button type="submit" className="w-full" disabled={isLoading}>

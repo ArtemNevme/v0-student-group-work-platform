@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef, useCallback } from "react"
+import Image from "next/image"
 import type {
   RealtimePostgresChangesPayload,
   RealtimePostgresInsertPayload,
@@ -450,9 +451,12 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                           {message.attachment_url && (
                             <div className="mt-2">
                               {message.attachment_type === "image" ? (
-                                <img
+                                <Image
                                   src={message.attachment_url || "/placeholder.svg"}
                                   alt="Attachment"
+                                  width={640}
+                                  height={384}
+                                  unoptimized
                                   className="max-w-full rounded-control max-h-60 object-cover"
                                 />
                               ) : (

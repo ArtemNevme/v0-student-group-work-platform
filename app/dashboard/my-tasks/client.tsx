@@ -1,5 +1,5 @@
 "use client"
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -51,8 +51,8 @@ export function MyTasksClient({
   userGroups,
   needsAutoSync,
 }: MyTasksClientProps) {
-  const tasks = items || []
-  const groups = userGroups || []
+  const tasks = items
+  const groups = userGroups
 
   const [sourceFilter, setSourceFilter] = useState<"all" | "studysync" | "google">("all")
   const [activeTab, setActiveTab] = useState("all")
@@ -64,6 +64,7 @@ export function MyTasksClient({
   // Sync state
   const [isSyncing, setIsSyncing] = useState(false)
   const [authExpired, setAuthExpired] = useState(false)
+  const hasAttemptedAutoSync = useRef(false)
 
   // Import dialog state
   const [importDialogOpen, setImportDialogOpen] = useState(false)
@@ -75,13 +76,7 @@ export function MyTasksClient({
     courseName?: string
   } | null>(null)
 
-  useEffect(() => {
-    if (isGoogleConnected && needsAutoSync && !isSyncing && !authExpired) {
-      performSync()
-    }
-  }, [isGoogleConnected, needsAutoSync])
-
-  const performSync = async () => {
+  const performSync = useCallback(async () => {
     setIsSyncing(true)
 
     try {
@@ -110,7 +105,19 @@ export function MyTasksClient({
     } finally {
       setIsSyncing(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!needsAutoSync) {
+      hasAttemptedAutoSync.current = false
+      return
+    }
+
+    if (isGoogleConnected && !hasAttemptedAutoSync.current) {
+      hasAttemptedAutoSync.current = true
+      void performSync()
+    }
+  }, [isGoogleConnected, needsAutoSync, performSync])
 
   const handleComplete = async (task: TaskItem) => {
     if (task.type !== "studysync" || !task.assignmentId) {

@@ -96,7 +96,7 @@ export default async function SubjectsPage() {
         <CreateGroupDialog subjects={subjects || []}>
           <Button
             size="lg"
-            className="h-12 w-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="h-12 w-12 rounded-control bg-primary text-primary-foreground hover:bg-primary/90"
             aria-label="Create Study Team"
           >
             <Plus className="h-5 w-5" strokeWidth={1.75} />

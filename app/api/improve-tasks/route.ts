@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateText } from "ai"
+import { z } from "zod"
+
+const requestSchema = z.object({
+  assignmentId: z.string().uuid(),
+  action: z.enum(["improve", "suggest"]),
+})
 
 function cleanJsonResponse(text: string): string {
   // Remove markdown code fences if present
@@ -28,7 +34,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { assignmentId, action } = await request.json()
+    const parsedRequest = requestSchema.safeParse(await request.json())
+    if (!parsedRequest.success) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    const { assignmentId, action } = parsedRequest.data
 
     // Get assignment and tasks
     const { data: assignment, error: assignmentError } = await supabase
@@ -41,16 +52,44 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Assignment not found" }, { status: 404 })
     }
 
+    const groupId = assignment.group_id
+
+    if (groupId) {
+      const { data: membership } = await supabase
+        .from("group_members")
+        .select("id")
+        .eq("group_id", groupId)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (!membership) {
+        return NextResponse.json({ error: "Not authorized" }, { status: 403 })
+      }
+    } else if (assignment.created_by !== user.id) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 })
+    }
+
+    const { data: quotaAvailable, error: quotaError } = await supabase.rpc("consume_ai_quota")
+    if (quotaError) {
+      console.error("AI quota check failed:", quotaError)
+      return NextResponse.json({ error: "AI service is temporarily unavailable" }, { status: 503 })
+    }
+    if (!quotaAvailable) {
+      return NextResponse.json({ error: "Daily AI request limit reached" }, { status: 429 })
+    }
+
     const { data: tasks } = await supabase
       .from("tasks")
       .select("*, task_assignments(*, profiles(id, full_name, email))")
       .eq("assignment_id", assignmentId)
       .order("created_at", { ascending: true })
 
-    const { data: members } = await supabase
-      .from("group_members")
-      .select("user_id, profiles(id, full_name, email)")
-      .eq("group_id", assignment.groups.id)
+    const { data: members } = groupId
+      ? await supabase
+          .from("group_members")
+          .select("user_id, profiles(id, full_name, email)")
+          .eq("group_id", groupId)
+      : { data: [] }
 
     let prompt = ""
 
@@ -59,7 +98,7 @@ export async function POST(request: Request) {
 
 Assignment: ${assignment.title}
 Description: ${assignment.description || "No description provided"}
-Group size: ${assignment.groups.member_count} members
+Group size: ${members?.length || 1} members
 
 Current tasks:
 ${tasks?.map((t, i) => `${i + 1}. ${t.title} (${t.estimated_hours}h) - ${t.description}`).join("\n")}
@@ -88,12 +127,12 @@ Return your response as JSON with this structure:
 }
 
 Only return the JSON, no additional text.`
-    } else if (action === "suggest") {
+    } else {
       prompt = `You are an AI assistant helping students with their group project.
 
 Assignment: ${assignment.title}
 Description: ${assignment.description || "No description provided"}
-Group size: ${assignment.groups.member_count} members
+Group size: ${members?.length || 1} members
 
 Current tasks:
 ${tasks?.map((t, i) => `${i + 1}. ${t.title} (${t.estimated_hours}h)`).join("\n")}

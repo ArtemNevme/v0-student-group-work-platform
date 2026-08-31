@@ -66,11 +66,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="flex min-h-screen w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900">StudySinc</h1>
-          <p className="mt-2 text-gray-600">Collaborate smarter, achieve together</p>
+          <h1 className="font-display text-4xl font-semibold tracking-[-0.02em]">StudySinc</h1>
+          <p className="mt-2 text-muted-foreground">Collaborate smarter, achieve together</p>
         </div>
         <Card>
           <CardHeader>
@@ -106,7 +106,7 @@ export default function LoginPage() {
                 </svg>
                 {isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}
               </Button>
-              <p className="mt-2 text-center text-xs text-gray-500">
+              <p className="mt-2 text-center text-xs text-muted-foreground">
                 Sign in with Google to access Google Classroom integration
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or continue with email</span>
+                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
               </div>
             </div>
 
@@ -144,8 +144,8 @@ export default function LoginPage() {
                   />
                 </div>
                 {error && (
-                  <div className="rounded-md bg-red-50 p-3">
-                    <p className="text-sm text-red-800">{error}</p>
+                  <div className="rounded-chip border border-danger/30 bg-danger/10 p-3 text-danger">
+                    <p className="text-sm">{error}</p>
                   </div>
                 )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -154,7 +154,7 @@ export default function LoginPage() {
               </div>
               <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link href="/auth/sign-up" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link href="/auth/sign-up" className="font-medium text-accent-fg hover:underline">
                   Sign up
                 </Link>
               </div>

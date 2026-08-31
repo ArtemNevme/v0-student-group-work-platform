@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { generateText } from "ai"
+import { z } from "zod"
+
+const requestSchema = z.object({
+  assignmentId: z.string().uuid(),
+  sourceTypes: z.array(z.enum(["news", "book", "scientific", "video", "other"])).max(5).default([]),
+})
 
 function cleanJsonResponse(text: string): string {
   // Remove markdown code fences if present
@@ -28,7 +34,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { assignmentId, sourceTypes } = await request.json()
+    const parsedRequest = requestSchema.safeParse(await request.json())
+    if (!parsedRequest.success) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    const { assignmentId, sourceTypes } = parsedRequest.data
 
     // Get assignment details
     const { data: assignment, error: assignmentError } = await supabase
@@ -39,6 +50,32 @@ export async function POST(request: Request) {
 
     if (assignmentError || !assignment) {
       return NextResponse.json({ error: "Assignment not found" }, { status: 404 })
+    }
+
+    const groupId = assignment.group_id
+
+    if (groupId) {
+      const { data: membership } = await supabase
+        .from("group_members")
+        .select("id")
+        .eq("group_id", groupId)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (!membership) {
+        return NextResponse.json({ error: "Not authorized" }, { status: 403 })
+      }
+    } else if (assignment.created_by !== user.id) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 })
+    }
+
+    const { data: quotaAvailable, error: quotaError } = await supabase.rpc("consume_ai_quota")
+    if (quotaError) {
+      console.error("AI quota check failed:", quotaError)
+      return NextResponse.json({ error: "AI service is temporarily unavailable" }, { status: 503 })
+    }
+    if (!quotaAvailable) {
+      return NextResponse.json({ error: "Daily AI request limit reached" }, { status: 429 })
     }
 
     const sourceTypesText = sourceTypes.length > 0 ? sourceTypes.join(", ") : "any relevant sources"

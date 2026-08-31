@@ -12,6 +12,36 @@ interface TaskInput {
   assignedMemberId: string
 }
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>
+
+async function getAssignmentMembership(supabase: SupabaseServerClient, assignmentId: string, userId: string) {
+  const { data: assignment } = await supabase.from("assignments").select("id, group_id").eq("id", assignmentId).single()
+
+  if (!assignment?.group_id) {
+    return null
+  }
+
+  const { data: membership } = await supabase
+    .from("group_members")
+    .select("id, role")
+    .eq("group_id", assignment.group_id)
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  return membership ? assignment : null
+}
+
+async function isGroupMember(supabase: SupabaseServerClient, groupId: string, userId: string) {
+  const { data: membership } = await supabase
+    .from("group_members")
+    .select("id")
+    .eq("group_id", groupId)
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  return Boolean(membership)
+}
+
 async function updateAssignmentStatusBasedOnTasks(assignmentId: string) {
   const supabase = await createClient()
 
@@ -68,23 +98,15 @@ export async function saveWorkPlan(assignmentId: string, tasks: TaskInput[]) {
     return { error: "Not authenticated" }
   }
 
-  // Get assignment to verify permissions
-  const { data: assignment } = await supabase.from("assignments").select("*").eq("id", assignmentId).single()
-
+  const assignment = await getAssignmentMembership(supabase, assignmentId, user.id)
   if (!assignment) {
-    return { error: "Assignment not found" }
+    return { error: "Not authorized" }
   }
 
-  // Verify user is member of the group
-  const { data: membership } = await supabase
-    .from("group_members")
-    .select("*")
-    .eq("group_id", assignment.group_id)
-    .eq("user_id", user.id)
-    .single()
-
-  if (!membership) {
-    return { error: "Not authorized" }
+  const { data: groupMembers } = await supabase.from("group_members").select("user_id").eq("group_id", assignment.group_id)
+  const memberIds = new Set(groupMembers?.map((member) => member.user_id))
+  if (tasks.some((task) => !memberIds.has(task.assignedMemberId))) {
+    return { error: "Tasks can only be assigned to group members" }
   }
 
   // Delete existing tasks for this assignment
@@ -146,6 +168,10 @@ export async function updateTaskStatus(taskId: string, status: string) {
     return { error: "Not authenticated" }
   }
 
+  if (!new Set(["not_started", "in_progress", "completed"]).has(status)) {
+    return { error: "Invalid task status" }
+  }
+
   // Get task assignment
   const { data: taskAssignment } = await supabase
     .from("task_assignments")
@@ -171,8 +197,15 @@ export async function updateTaskStatus(taskId: string, status: string) {
     return { error: error.message }
   }
 
-  // Update task status
-  await supabase.from("tasks").update({ status }).eq("id", taskId)
+  const { data: taskAssignments } = await supabase.from("task_assignments").select("status").eq("task_id", taskId)
+  const taskStatus =
+    taskAssignments?.length && taskAssignments.every((assignment) => assignment.status === "completed")
+      ? "completed"
+      : taskAssignments?.some((assignment) => assignment.status === "in_progress" || assignment.status === "completed")
+        ? "in_progress"
+        : "not_started"
+
+  await supabase.from("tasks").update({ status: taskStatus }).eq("id", taskId)
 
   if (status === "completed" && taskAssignment.tasks?.assignments?.deadline) {
     const deadline = new Date(taskAssignment.tasks.assignments.deadline)
@@ -234,15 +267,13 @@ export async function createTask(
     return { error: "Not authenticated" }
   }
 
-  // Verify user is member of the group
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("*, groups!inner(group_members!inner(user_id))")
-    .eq("id", assignmentId)
-    .single()
-
+  const assignment = await getAssignmentMembership(supabase, assignmentId, user.id)
   if (!assignment) {
-    return { error: "Assignment not found" }
+    return { error: "Not authorized" }
+  }
+
+  if (!(await isGroupMember(supabase, assignment.group_id, assignedMemberId))) {
+    return { error: "Tasks can only be assigned to group members" }
   }
 
   // Get current max order
@@ -315,6 +346,20 @@ export async function updateTask(
     return { error: "Not authenticated" }
   }
 
+  const { data: task } = await supabase.from("tasks").select("assignment_id").eq("id", taskId).single()
+  if (!task) {
+    return { error: "Task not found" }
+  }
+
+  const assignment = await getAssignmentMembership(supabase, task.assignment_id, user.id)
+  if (!assignment) {
+    return { error: "Not authorized" }
+  }
+
+  if (!(await isGroupMember(supabase, assignment.group_id, assignedMemberId))) {
+    return { error: "Tasks can only be assigned to group members" }
+  }
+
   // Update task
   const { error: taskError } = await supabase
     .from("tasks")
@@ -371,8 +416,15 @@ export async function deleteTask(taskId: string) {
     return { error: "Not authenticated" }
   }
 
-  // Get assignment ID before deleting
   const { data: task } = await supabase.from("tasks").select("assignment_id").eq("id", taskId).single()
+  if (!task) {
+    return { error: "Task not found" }
+  }
+
+  const assignment = await getAssignmentMembership(supabase, task.assignment_id, user.id)
+  if (!assignment) {
+    return { error: "Not authorized" }
+  }
 
   // Delete task (cascade will delete task_assignments)
   const { error } = await supabase.from("tasks").delete().eq("id", taskId)

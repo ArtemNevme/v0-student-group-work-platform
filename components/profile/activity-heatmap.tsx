@@ -46,11 +46,11 @@ export function ActivityHeatmap({ activityMap }: ActivityHeatmapProps) {
   }
 
   const getColor = (count: number) => {
-    if (count === 0) return "bg-gray-100 dark:bg-gray-800"
-    if (count === 1) return "bg-green-200 dark:bg-green-900"
-    if (count === 2) return "bg-green-300 dark:bg-green-700"
-    if (count <= 4) return "bg-green-400 dark:bg-green-600"
-    return "bg-green-500 dark:bg-green-500"
+    if (count === 0) return "bg-secondary"
+    if (count === 1) return "bg-primary/25"
+    if (count === 2) return "bg-primary/50"
+    if (count <= 4) return "bg-primary/75"
+    return "bg-primary"
   }
 
   const formatDate = (dateStr: string) => {
@@ -85,7 +85,9 @@ export function ActivityHeatmap({ activityMap }: ActivityHeatmapProps) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Activity</CardTitle>
-          <span className="text-sm text-muted-foreground">{totalActivity} tasks completed this year</span>
+          <span className="text-sm text-muted-foreground">
+            <span className="font-num">{totalActivity}</span> tasks completed this year
+          </span>
         </div>
       </CardHeader>
       <CardContent>
@@ -134,8 +136,8 @@ export function ActivityHeatmap({ activityMap }: ActivityHeatmapProps) {
                       </TooltipTrigger>
                       {day.date && (
                         <TooltipContent side="top" className="text-xs">
-                          <p className="font-medium">{day.count} tasks</p>
-                          <p className="text-muted-foreground">{formatDate(day.date)}</p>
+                          <p className="font-medium font-num">{day.count} tasks</p>
+                          <p className="text-muted-foreground font-num">{formatDate(day.date)}</p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -148,11 +150,11 @@ export function ActivityHeatmap({ activityMap }: ActivityHeatmapProps) {
             <div className="mt-2 flex items-center justify-end gap-1 text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex gap-0.5">
-                <div className="h-[10px] w-[10px] rounded-sm bg-gray-100 dark:bg-gray-800" />
-                <div className="h-[10px] w-[10px] rounded-sm bg-green-200 dark:bg-green-900" />
-                <div className="h-[10px] w-[10px] rounded-sm bg-green-300 dark:bg-green-700" />
-                <div className="h-[10px] w-[10px] rounded-sm bg-green-400 dark:bg-green-600" />
-                <div className="h-[10px] w-[10px] rounded-sm bg-green-500" />
+                <div className="h-[10px] w-[10px] rounded-sm bg-secondary" />
+                <div className="h-[10px] w-[10px] rounded-sm bg-primary/25" />
+                <div className="h-[10px] w-[10px] rounded-sm bg-primary/50" />
+                <div className="h-[10px] w-[10px] rounded-sm bg-primary/75" />
+                <div className="h-[10px] w-[10px] rounded-sm bg-primary" />
               </div>
               <span>More</span>
             </div>

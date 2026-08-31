@@ -8,21 +8,13 @@ interface ProgressRingProps {
 }
 
 export function ProgressRing({ progress, completedTasks, totalTasks, size = 120 }: ProgressRingProps) {
-  const strokeWidth = 8
+  const strokeWidth = 4
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (progress / 100) * circumference
 
-  // Color based on progress
-  const getColor = () => {
-    if (progress >= 100) return { stroke: "#10b981", bg: "#d1fae5", text: "text-emerald-600" }
-    if (progress >= 75) return { stroke: "#3b82f6", bg: "#dbeafe", text: "text-blue-600" }
-    if (progress >= 50) return { stroke: "#f59e0b", bg: "#fef3c7", text: "text-amber-600" }
-    if (progress >= 25) return { stroke: "#f97316", bg: "#ffedd5", text: "text-orange-600" }
-    return { stroke: "#6b7280", bg: "#f3f4f6", text: "text-gray-600" }
-  }
-
-  const colors = getColor()
+  const isComplete = progress >= 100
+  const arcColor = isComplete ? "text-success" : "text-primary"
 
   return (
     <div className="flex flex-col items-center">
@@ -36,7 +28,7 @@ export function ProgressRing({ progress, completedTasks, totalTasks, size = 120 
             fill="none"
             stroke="currentColor"
             strokeWidth={strokeWidth}
-            className="text-gray-100 dark:text-gray-800"
+            className="text-secondary"
           />
           {/* Progress circle */}
           <circle
@@ -44,25 +36,29 @@ export function ProgressRing({ progress, completedTasks, totalTasks, size = 120 
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke={colors.stroke}
+            stroke="currentColor"
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             strokeLinecap="round"
-            className="transition-all duration-500 ease-out"
+            className={`${arcColor} transition-all duration-500 ease-out`}
           />
         </svg>
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`text-2xl font-bold ${colors.text}`}>{Math.round(progress)}%</span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">complete</span>
+          <span className={`font-num text-[22px] font-semibold ${isComplete ? "text-success" : "text-foreground"}`}>
+            {Math.round(progress)}%
+          </span>
+          <span className="text-xs text-muted-foreground">complete</span>
         </div>
       </div>
       <div className="mt-3 text-center">
-        <p className="text-sm font-medium text-gray-900 dark:text-white">
-          {completedTasks} of {totalTasks} tasks
+        <p className="text-sm font-medium text-foreground">
+          <span className="font-num">{completedTasks}</span> of <span className="font-num">{totalTasks}</span> tasks
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">{totalTasks - completedTasks} remaining</p>
+        <p className="text-xs text-muted-foreground">
+          <span className="font-num">{totalTasks - completedTasks}</span> remaining
+        </p>
       </div>
     </div>
   )

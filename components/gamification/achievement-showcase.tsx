@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Trophy } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Achievement {
   id: string
@@ -20,19 +22,26 @@ export function AchievementShowcase({ achievements }: AchievementShowcaseProps) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Achievements ({achievements.length})</CardTitle>
+        <CardTitle className="font-display text-[17px] font-medium tracking-[-0.01em]">
+          Achievements ({achievements.length})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {achievements.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {achievements.map((achievement) => (
-              <div key={achievement.id} className="rounded-lg border bg-gradient-to-br from-yellow-50 to-orange-50 p-4">
+              <div
+                key={achievement.id}
+                className="rounded-card border border-border bg-card p-4 transition-colors duration-150 hover:bg-secondary"
+              >
                 <div className="flex items-start gap-3">
-                  <div className="text-3xl">{achievement.achievements.icon}</div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{achievement.achievements.name}</h4>
-                    <p className="mt-1 text-xs text-gray-600">{achievement.achievements.description}</p>
-                    <p className="mt-2 text-xs text-gray-500">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent-fg">
+                    <Trophy className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-foreground">{achievement.achievements.name}</h4>
+                    <p className="mt-1 text-xs text-muted-foreground">{achievement.achievements.description}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
                       Earned {formatDistanceToNow(new Date(achievement.earned_at), { addSuffix: true })}
                     </p>
                   </div>
@@ -41,10 +50,12 @@ export function AchievementShowcase({ achievements }: AchievementShowcaseProps) 
             ))}
           </div>
         ) : (
-          <div className="py-8 text-center text-sm text-gray-500">
-            <p>No achievements yet</p>
-            <p className="mt-1 text-xs">Complete tasks and participate to earn badges!</p>
-          </div>
+          <EmptyState
+            icon={Trophy}
+            title="No achievements yet"
+            description="Complete tasks and participate to earn badges."
+            variant="card"
+          />
         )}
       </CardContent>
     </Card>

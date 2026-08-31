@@ -133,7 +133,7 @@ export function SourceRecommendations({ assignmentId }: SourceRecommendationsPro
                         htmlFor={`source-${option.id}`}
                         className="flex cursor-pointer items-center gap-2 text-sm font-normal"
                       >
-                        <Icon className="h-4 w-4 text-gray-500" />
+                        <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                         {option.label}
                       </Label>
                     </div>
@@ -159,15 +159,15 @@ export function SourceRecommendations({ assignmentId }: SourceRecommendationsPro
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-control bg-danger/10 p-3">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
           </div>
         ) : (
           <div className="space-y-4 py-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">{sources.length} sources recommended</p>
+              <p className="text-sm text-muted-foreground"><span className="font-num">{sources.length}</span> sources recommended</p>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => setSources([])}>
                   Try Again
@@ -182,22 +182,22 @@ export function SourceRecommendations({ assignmentId }: SourceRecommendationsPro
               {sources.map((source, index) => {
                 const SourceIcon = categoryIcons[source.category]
                 return (
-                  <div key={index} className="rounded-lg border p-4">
+                  <div key={index} className="rounded-card border border-border p-4">
                     <div className="flex items-start gap-3">
-                      <div className="rounded-md bg-blue-50 p-2">
-                        <SourceIcon className="h-4 w-4 text-blue-600" />
+                      <div className="rounded-control bg-secondary p-2">
+                        <SourceIcon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium">{source.title}</h4>
-                        <p className="mt-1 text-sm text-gray-600">{source.description}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{source.description}</p>
                         <a
                           href={source.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center text-sm text-blue-600 hover:underline"
+                          className="mt-2 inline-flex items-center text-sm text-accent-fg hover:underline"
                         >
                           View source
-                          <LinkIcon className="ml-1 h-3 w-3" />
+                          <LinkIcon className="ml-1 h-3 w-3" strokeWidth={1.75} />
                         </a>
                       </div>
                     </div>
@@ -207,8 +207,8 @@ export function SourceRecommendations({ assignmentId }: SourceRecommendationsPro
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-control bg-danger/10 p-3">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
           </div>

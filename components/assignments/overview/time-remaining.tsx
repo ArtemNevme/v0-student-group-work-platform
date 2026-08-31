@@ -65,40 +65,32 @@ export function TimeRemaining({ deadline, status, createdAt }: TimeRemainingProp
   const getStatusStyle = () => {
     if (isCompleted) {
       return {
-        bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
-        textColor: "text-emerald-600 dark:text-emerald-400",
-        barColor: "bg-emerald-500",
+        bgColor: "bg-success/10",
+        textColor: "text-success",
+        barColor: "bg-success",
         icon: CheckCircle2,
       }
     }
     if (isOverdue) {
       return {
-        bgColor: "bg-red-50 dark:bg-red-900/20",
-        textColor: "text-red-600 dark:text-red-400",
-        barColor: "bg-red-500",
+        bgColor: "bg-danger/10",
+        textColor: "text-danger",
+        barColor: "bg-danger",
         icon: AlertTriangle,
       }
     }
     if (daysLeft <= 1) {
       return {
-        bgColor: "bg-amber-50 dark:bg-amber-900/20",
-        textColor: "text-amber-600 dark:text-amber-400",
-        barColor: "bg-amber-500",
-        icon: Clock,
-      }
-    }
-    if (daysLeft <= 3) {
-      return {
-        bgColor: "bg-orange-50 dark:bg-orange-900/20",
-        textColor: "text-orange-600 dark:text-orange-400",
-        barColor: "bg-orange-500",
+        bgColor: "bg-accent-soft",
+        textColor: "text-accent-fg",
+        barColor: "bg-primary",
         icon: Clock,
       }
     }
     return {
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
-      textColor: "text-blue-600 dark:text-blue-400",
-      barColor: "bg-blue-500",
+      bgColor: "bg-secondary",
+      textColor: "text-foreground",
+      barColor: "bg-primary",
       icon: Clock,
     }
   }
@@ -107,27 +99,27 @@ export function TimeRemaining({ deadline, status, createdAt }: TimeRemainingProp
   const Icon = style.icon
 
   return (
-    <div className={`rounded-xl p-4 ${style.bgColor}`}>
+    <div className={`rounded-card p-4 ${style.bgColor}`}>
       <div className="flex items-center gap-2 mb-3">
-        <Icon className={`h-5 w-5 ${style.textColor}`} />
+        <Icon className={`h-5 w-5 ${style.textColor}`} strokeWidth={1.75} />
         <span className={`font-semibold ${style.textColor}`}>
           {isCompleted ? "Status" : isOverdue ? "Overdue" : "Time Left"}
         </span>
       </div>
 
-      <p className={`text-2xl font-bold mb-1 ${style.textColor}`}>{formatTimeLeft()}</p>
+      <p className={`font-num text-[22px] font-semibold mb-1 ${style.textColor}`}>{formatTimeLeft()}</p>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-        Due: {format(deadlineDate, "MMM d, yyyy 'at' h:mm a")}
+      <p className="text-sm text-muted-foreground mb-3">
+        Due: <span className="font-num">{format(deadlineDate, "MMM d, yyyy 'at' h:mm a")}</span>
       </p>
 
       {!isCompleted && (
         <div className="space-y-1">
-          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex justify-between text-xs text-muted-foreground">
             <span>Time elapsed</span>
-            <span>{Math.round(timeProgress)}%</span>
+            <span className="font-num">{Math.round(timeProgress)}%</span>
           </div>
-          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-background/60 rounded-full overflow-hidden">
             <div
               className={`h-full ${style.barColor} rounded-full transition-all duration-300`}
               style={{ width: `${timeProgress}%` }}

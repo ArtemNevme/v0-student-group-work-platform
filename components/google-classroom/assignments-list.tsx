@@ -1,15 +1,22 @@
 "use client"
 
+import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Calendar, Trash2, BookOpen } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { deleteImportedAssignment } from "@/lib/actions/google-classroom"
 import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
 import { ImportToStudySyncDialog } from "./import-to-studysync-dialog"
-import { useState, useMemo } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ImportedAssignment {
   id: string
@@ -29,20 +36,6 @@ interface Group {
     id: string
     name: string
   }
-}
-
-const getCourseColor = (courseName: string) => {
-  const colors = [
-    { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
-    { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200" },
-    { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" },
-    { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
-    { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-200" },
-    { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200" },
-  ]
-
-  const hash = courseName.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  return colors[hash % colors.length]
 }
 
 export function GoogleClassroomAssignments({
@@ -109,12 +102,17 @@ export function GoogleClassroomAssignments({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Imported Assignments</CardTitle>
+          <CardTitle className="font-display text-[17px] font-medium tracking-[-0.01em]">
+            Imported Assignments
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-gray-600">
-            No assignments imported yet. Click "Sync Now" to import your data.
-          </p>
+          <EmptyState
+            icon={BookOpen}
+            title="No assignments imported yet"
+            description="Click Sync Now to import your data from Google Classroom."
+            variant="card"
+          />
         </CardContent>
       </Card>
     )
@@ -123,10 +121,12 @@ export function GoogleClassroomAssignments({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Imported Assignments</CardTitle>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="font-display text-[17px] font-medium tracking-[-0.01em]">
+            Imported Assignments
+          </CardTitle>
           <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Filter by course" />
             </SelectTrigger>
             <SelectContent>
@@ -148,83 +148,74 @@ export function GoogleClassroomAssignments({
           {Array.from(groupedAssignments.entries()).map(([courseId, courseAssignments]) => {
             const course = courses.find((c) => c.id === courseId)
             const courseName = course?.name || "Unknown Course"
-            const colors = getCourseColor(courseName)
 
             return (
               <div key={courseId} className="space-y-3">
                 {selectedCourse === "all" && (
                   <div className="flex items-center gap-2">
-                    <BookOpen className={`h-4 w-4 ${colors.text}`} />
-                    <h3 className="font-semibold text-gray-900">{courseName}</h3>
-                    <span className="text-sm text-gray-500">({courseAssignments.length})</span>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-secondary text-muted-foreground">
+                      <BookOpen className="h-4 w-4" strokeWidth={1.75} />
+                    </div>
+                    <h3 className="font-display text-[15px] font-medium tracking-[-0.01em] text-foreground">
+                      {courseName}
+                    </h3>
+                    <span className="text-sm text-muted-foreground">({courseAssignments.length})</span>
                   </div>
                 )}
 
                 <div className="space-y-3">
-                  {courseAssignments.map((assignment) => {
-                    const courseColors = assignment.imported_courses
-                      ? getCourseColor(assignment.imported_courses.name)
-                      : { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-200" }
-
-                    return (
-                      <div
-                        key={assignment.id}
-                        className={`flex items-start justify-between rounded-lg border ${courseColors.border} ${courseColors.bg} p-4`}
-                      >
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-start gap-2">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900">{assignment.title}</h4>
-                              {selectedCourse !== "all" && assignment.imported_courses && (
-                                <p className={`text-sm ${courseColors.text} font-medium`}>
-                                  {assignment.imported_courses.name}
-                                </p>
-                              )}
-                            </div>
-                            <Badge variant="secondary" className="bg-white/50">
-                              Google Classroom
-                            </Badge>
+                  {courseAssignments.map((assignment) => (
+                    <div
+                      key={assignment.id}
+                      className="flex items-start justify-between rounded-control border border-border bg-card p-4 transition-colors duration-150 hover:bg-secondary"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="mb-2 flex items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-foreground">{assignment.title}</h4>
+                            {selectedCourse !== "all" && assignment.imported_courses && (
+                              <p className="text-sm font-medium text-muted-foreground">
+                                {assignment.imported_courses.name}
+                              </p>
+                            )}
                           </div>
-
-                          {assignment.description && (
-                            <p className="mb-2 text-sm text-gray-600 line-clamp-2">{assignment.description}</p>
-                          )}
-
-                          {assignment.due_date && (
-                            <div className="mb-3 flex items-center gap-1 text-sm text-gray-600">
-                              <Calendar className="h-4 w-4" />
-                              Due: {new Date(assignment.due_date).toLocaleDateString()}
-                            </div>
-                          )}
-
-                          <div className="flex gap-2">
-                            <ImportToStudySyncDialog
-                              assignmentId={assignment.id}
-                              assignmentTitle={assignment.title}
-                              groups={groups}
-                            />
-                          </div>
+                          <Badge variant="secondary">Google Classroom</Badge>
                         </div>
+
+                        {assignment.description && (
+                          <p className="mb-2 text-sm text-muted-foreground line-clamp-2">{assignment.description}</p>
+                        )}
+
+                        {assignment.due_date && (
+                          <div className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" strokeWidth={1.75} />
+                            <span>Due: {new Date(assignment.due_date).toLocaleDateString("en-US")}</span>
+                          </div>
+                        )}
 
                         <div className="flex gap-2">
-                          {assignment.alternate_link && (
-                            <Button variant="ghost" size="sm" asChild>
-                              <a href={assignment.alternate_link} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(assignment.id, assignment.title)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <ImportToStudySyncDialog
+                            assignmentId={assignment.id}
+                            assignmentTitle={assignment.title}
+                            groups={groups}
+                          />
                         </div>
                       </div>
-                    )
-                  })}
+
+                      <div className="flex gap-2">
+                        {assignment.alternate_link && (
+                          <Button variant="ghost" size="sm" asChild>
+                            <a href={assignment.alternate_link} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" strokeWidth={1.75} />
+                            </a>
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(assignment.id, assignment.title)}>
+                          <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )

@@ -50,7 +50,7 @@ function linkifyText(text: string) {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline break-all"
+          className="inline-flex items-center gap-1 text-accent-fg hover:underline break-all"
         >
           {part}
           <ExternalLink className="h-3 w-3 flex-shrink-0" />
@@ -80,7 +80,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <ListTodo className="h-4 w-4 hidden sm:block" />
           Tasks
           {tasks.length > 0 && (
-            <span className="ml-1 rounded-full bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">
+            <span className="ml-1 rounded-chip bg-accent-soft px-1.5 py-0.5 text-xs font-num font-medium text-accent-fg">
               {tasks.length}
             </span>
           )}
@@ -89,7 +89,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <Paperclip className="h-4 w-4 hidden sm:block" />
           Files
           {files.length > 0 && (
-            <span className="ml-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium">
+            <span className="ml-1 rounded-chip bg-secondary px-1.5 py-0.5 text-xs font-num font-medium text-muted-foreground">
               {files.length}
             </span>
           )}
@@ -98,7 +98,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <Link2 className="h-4 w-4 hidden sm:block" />
           Sources
           {links.length > 0 && (
-            <span className="ml-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium">
+            <span className="ml-1 rounded-chip bg-secondary px-1.5 py-0.5 text-xs font-num font-medium text-muted-foreground">
               {links.length}
             </span>
           )}
@@ -131,27 +131,27 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Priority</p>
+                <p className="text-sm text-muted-foreground mb-2">Priority</p>
                 <PriorityBadge priority={assignment.priority || "medium"} size="lg" />
               </div>
 
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 text-center">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{files.length}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Files</p>
+                <div className="p-3 rounded-control bg-secondary text-center">
+                  <p className="font-num text-[22px] font-semibold text-foreground">{files.length}</p>
+                  <p className="text-xs text-muted-foreground">Files</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 text-center">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{links.length}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Sources</p>
+                <div className="p-3 rounded-control bg-secondary text-center">
+                  <p className="font-num text-[22px] font-semibold text-foreground">{links.length}</p>
+                  <p className="text-xs text-muted-foreground">Sources</p>
                 </div>
               </div>
 
               {assignment.estimated_hours && (
-                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-center">
-                  <p className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                <div className="p-3 rounded-control bg-accent-soft text-center">
+                  <p className="font-num text-lg font-semibold text-accent-fg">
                     ~{assignment.estimated_hours}h
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Estimated</p>
+                  <p className="text-xs text-accent-fg">Estimated</p>
                 </div>
               )}
             </CardContent>
@@ -163,13 +163,13 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-gray-500" />
+                <BookOpen className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                 Description
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-gray dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 break-words leading-relaxed">
+              <div className="max-w-none">
+                <div className="whitespace-pre-wrap text-foreground break-words leading-relaxed">
                   {linkifyText(assignment.description)}
                 </div>
               </div>
@@ -184,7 +184,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-gray-500" />
+                  <Users className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                   Team Workload
                 </CardTitle>
               </CardHeader>
@@ -197,7 +197,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-gray-500" />
+                  <Activity className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                   Recent Activity
                 </CardTitle>
               </CardHeader>
@@ -213,20 +213,20 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <Card className="border-dashed">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center gap-2">
-                <Sparkles className="h-5 w-5 text-yellow-500" />
+                <Sparkles className="h-5 w-5 text-accent-fg" strokeWidth={1.75} />
                 Get Started
               </CardTitle>
               <CardDescription>Choose how you want to plan your work</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Card className="border-2 hover:border-blue-500 transition-colors cursor-pointer group">
+                <Card className="hover:border-muted-foreground/40 transition-colors duration-150 cursor-pointer">
                   <CardContent className="pt-6 text-center">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <div className="mx-auto w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
+                      <Sparkles className="h-6 w-6 text-accent-fg" strokeWidth={1.75} />
                     </div>
                     <h3 className="font-semibold mb-2">AI Work Planner</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Let AI analyze your assignment and create a detailed work plan
                     </p>
                     <Button variant="outline" className="w-full bg-transparent" onClick={() => setActiveTab("tasks")}>
@@ -235,13 +235,13 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-green-500 transition-colors cursor-pointer group">
+                <Card className="hover:border-muted-foreground/40 transition-colors duration-150 cursor-pointer">
                   <CardContent className="pt-6 text-center">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Plus className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    <div className="mx-auto w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
+                      <Plus className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
                     </div>
                     <h3 className="font-semibold mb-2">Manual Planning</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Create your own tasks and organize work your way
                     </p>
                     <CreateTaskDialog assignmentId={assignment.id} members={members}>
@@ -277,7 +277,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
             {/* Tasks List */}
             <Card>
               <CardHeader>
-                <CardTitle>Tasks ({tasks.length})</CardTitle>
+                <CardTitle>Tasks (<span className="font-num">{tasks.length}</span>)</CardTitle>
               </CardHeader>
               <CardContent>
                 <TaskList
@@ -326,7 +326,7 @@ export function AssignmentTabs({ assignment, tasks, files, links, members, curre
           <Card>
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Add helpful resources and references for your assignment
                 </p>
                 <SourceRecommendations assignmentId={assignment.id} />

@@ -8,8 +8,8 @@ import {
   shouldAutoSync,
 } from "@/lib/actions/google-classroom"
 import { getMyGroups } from "@/lib/actions/groups"
-import { DashboardHeader } from "@/components/layout/dashboard-header"
 import { differenceInCalendarDays, startOfDay } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
 import { MyTasksClient } from "./client"
 
 export interface TaskItem {
@@ -31,6 +31,7 @@ export interface TaskItem {
   courseId?: string
   daysUntilDeadline?: number
   isCompleted?: boolean
+  isImported?: boolean
 }
 
 function shouldHideTask(deadline: string | null, status: string): boolean {
@@ -111,7 +112,7 @@ export default async function MyTasksPage() {
 
   let hiddenStudySync = 0
   const studySyncItems: TaskItem[] = (assignments || [])
-    .map((a) => {
+    .map((a): TaskItem | null => {
       const hide = shouldHideTask(a.deadline, a.status)
       if (hide) {
         hiddenStudySync++
@@ -131,7 +132,7 @@ export default async function MyTasksPage() {
         deadline: a.deadline,
         status: a.status,
         sourceId: a.groups?.id || "",
-        sourceName: a.groups?.name || "Unknown Group",
+        sourceName: cleanDisplayName(a.groups?.name) || "Unknown Group",
         sourceType: "group" as const,
         link: `/dashboard/assignments/${a.id}`,
         externalLink: null,
@@ -146,7 +147,7 @@ export default async function MyTasksPage() {
 
   let hiddenGoogle = 0
   const googleItems: TaskItem[] = (importedAssignments || [])
-    .map((a) => {
+    .map((a): TaskItem | null => {
       const hide = shouldHideTask(a.due_date, "active")
       if (hide) {
         hiddenGoogle++
@@ -172,7 +173,7 @@ export default async function MyTasksPage() {
         link: null,
         externalLink: a.alternate_link,
         externalId: a.google_assignment_id,
-        courseId: a.google_course_id,
+        courseId: a.google_course_id || undefined,
         daysUntilDeadline: daysUntil,
         isCompleted: false,
       }
@@ -185,25 +186,22 @@ export default async function MyTasksPage() {
   const archivedCount = hiddenStudySync + hiddenGoogle
 
   const sources = [
-    ...groups.map((g) => ({ id: g.id, name: g.name, type: "group" as const })),
-    ...(courses || []).map((c) => ({ id: c.id, name: c.name, type: "course" as const })),
+    ...groups.map((g) => ({ id: g.id, name: cleanDisplayName(g.name), type: "group" as const })),
+    ...(courses || []).map((c) => ({ id: c.id, name: cleanDisplayName(c.name), type: "course" as const })),
   ]
 
-  const userGroupsForImport = groups.map((g) => ({ id: g.id, name: g.name }))
+  const userGroupsForImport = groups.map((g) => ({ id: g.id, name: cleanDisplayName(g.name) }))
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <DashboardHeader />
-      <main className="container mx-auto px-4 sm:px-6 py-6 max-w-5xl">
-        <MyTasksClient
-          items={allItems}
-          sources={sources}
-          archivedCount={archivedCount}
-          isGoogleConnected={isGoogleConnected}
-          userGroups={userGroupsForImport}
-          needsAutoSync={needsSync}
-        />
-      </main>
+    <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+      <MyTasksClient
+        items={allItems}
+        sources={sources}
+        archivedCount={archivedCount}
+        isGoogleConnected={isGoogleConnected}
+        userGroups={userGroupsForImport}
+        needsAutoSync={needsSync}
+      />
     </div>
   )
 }

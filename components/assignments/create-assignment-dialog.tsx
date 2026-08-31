@@ -84,8 +84,8 @@ export function CreateAssignmentDialog({ groupId, trigger }: CreateAssignmentDia
             <Input id="deadline" name="deadline" type="datetime-local" required />
           </div>
           {error && (
-            <div className="rounded-md bg-red-50 p-3">
-              <p className="text-sm text-red-800">{error}</p>
+            <div className="rounded-control bg-danger/10 p-3">
+              <p className="text-sm text-danger">{error}</p>
             </div>
           )}
           <div className="flex justify-end gap-2">

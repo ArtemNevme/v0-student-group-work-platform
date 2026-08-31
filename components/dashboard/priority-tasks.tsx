@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Task {
   id: string
@@ -66,87 +67,69 @@ export function PriorityTasks({ tasks }: PriorityTasksProps) {
     return "normal"
   }
 
-  const getUrgencyStyles = (urgency: string) => {
+  const getBadgeClass = (urgency: string) => {
     switch (urgency) {
       case "overdue":
-        return "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30"
+        return "bg-danger/10 text-danger"
       case "urgent":
-        return "border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/30"
-      case "soon":
-        return "border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950/30"
+        return "bg-accent-soft text-accent-fg"
       default:
-        return "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+        return "bg-secondary text-muted-foreground"
     }
   }
 
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
       case "overdue":
-        return <AlertTriangle className="h-4 w-4 text-red-500" />
-      case "urgent":
-        return <Clock className="h-4 w-4 text-orange-500" />
+        return <AlertTriangle className="h-3.5 w-3.5 text-danger" strokeWidth={1.75} />
       default:
-        return <Clock className="h-4 w-4 text-gray-400" />
+        return <Clock className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
     }
   }
 
   if (priorityTasks.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 p-8 text-center">
-        <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
-        <h3 className="font-semibold text-green-900 dark:text-green-100">All caught up!</h3>
-        <p className="text-sm text-green-700 dark:text-green-300 mt-1">No pending tasks right now</p>
-      </div>
+      <EmptyState
+        icon={CheckCircle2}
+        title="All done!"
+        description="No tasks in progress right now."
+      />
     )
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-          Priority
-        </h2>
-        <Link href="/dashboard/my-tasks">
-          <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
-            View all <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
+    <div className="rounded-card border border-border bg-card">
+      <div className="flex items-center justify-between px-4 pt-3.5 sm:px-5">
+        <h2 className="font-display text-[15px] font-medium tracking-[-0.01em] text-foreground">Priority Tasks</h2>
+        <Link
+          href="/dashboard/my-tasks"
+          className="flex items-center gap-1 text-[12.5px] text-muted-foreground transition-colors duration-150 hover:text-accent-fg"
+        >
+          All tasks <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} />
         </Link>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col p-2">
         {priorityTasks.map((task) => {
           const urgency = getUrgencyLevel(task.tasks.assignments.deadline)
           return (
             <Link
               key={task.id}
               href={`/dashboard/assignments/${task.tasks.assignments.id}`}
-              className={`block rounded-xl border p-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${getUrgencyStyles(urgency)}`}
+              className="flex items-center justify-between gap-3 rounded-control px-2.5 py-2.5 transition-colors duration-150 hover:bg-secondary"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-gray-900 dark:text-white truncate">{task.tasks.title}</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                    {task.tasks.assignments.groups.name}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {getUrgencyIcon(urgency)}
-                  <span
-                    className={`text-sm font-medium ${
-                      urgency === "overdue"
-                        ? "text-red-600 dark:text-red-400"
-                        : urgency === "urgent"
-                          ? "text-orange-600 dark:text-orange-400"
-                          : "text-gray-500"
-                    }`}
-                  >
-                    {urgency === "overdue"
-                      ? "Overdue"
-                      : formatDistanceToNow(new Date(task.tasks.assignments.deadline), { addSuffix: false })}
-                  </span>
-                </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-[13.5px] font-medium text-foreground truncate">{task.tasks.title}</h4>
+                <p className="text-[11.5px] text-muted-foreground mt-0.5">{cleanDisplayName(task.tasks.assignments.groups.name)}</p>
               </div>
+              <span
+                className={`flex shrink-0 items-center gap-1.5 rounded-chip px-2 py-0.5 font-num text-[11px] font-medium ${getBadgeClass(urgency)}`}
+              >
+                {getUrgencyIcon(urgency)}
+                {urgency === "overdue"
+                  ? "overdue"
+                  : formatDistanceToNow(new Date(task.tasks.assignments.deadline), { addSuffix: false })}
+              </span>
             </Link>
           )
         })}

@@ -1,7 +1,6 @@
 "use client"
 
-import { Users, CheckSquare, Clock } from "lucide-react"
-import { useEffect, useState } from "react"
+import { CheckSquare, Zap, Medal, Flame } from "lucide-react"
 
 interface StatsCardsProps {
   stats: {
@@ -11,62 +10,48 @@ interface StatsCardsProps {
     points: number
     level: number
   }
+  streak: number
 }
 
-export function StatsCards({ stats }: StatsCardsProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
+export function StatsCards({ stats, streak }: StatsCardsProps) {
   const cards = [
     {
-      title: "Active Groups",
-      value: stats.totalGroups,
-      icon: Users,
-      color: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900",
-      borderColor: "border-blue-200 dark:border-blue-800",
-    },
-    {
-      title: "Pending Tasks",
+      title: "Tasks in Progress",
       value: stats.pendingTasks,
       icon: CheckSquare,
-      color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900",
-      borderColor: "border-green-200 dark:border-green-800",
+      accent: false,
     },
     {
-      title: "Upcoming Deadlines",
-      value: stats.upcomingDeadlines,
-      icon: Clock,
-      color: "text-orange-600 dark:text-orange-400",
-      bgColor: "bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900",
-      borderColor: "border-orange-200 dark:border-orange-800",
+      title: "Experience (XP)",
+      value: stats.points.toLocaleString("en-US"),
+      icon: Zap,
+      accent: true,
+    },
+    {
+      title: "Level",
+      value: stats.level,
+      icon: Medal,
+      accent: true,
+    },
+    {
+      title: "Streak",
+      value: streak,
+      icon: Flame,
+      accent: true,
     },
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      {cards.map((card, index) => {
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {cards.map((card) => {
         const Icon = card.icon
         return (
-          <div
-            key={card.title}
-            className={`rounded-xl bg-white dark:bg-gray-900 p-5 shadow-sm border-2 ${card.borderColor} 
-              transition-lift hover:shadow-xl cursor-pointer
-              ${mounted ? "animate-slideUp" : "opacity-0"} stagger-${index + 1}`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{card.title}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{card.value}</p>
-              </div>
-              <div className={`rounded-xl p-3 ${card.bgColor} shadow-sm`}>
-                <Icon className={`h-6 w-6 ${card.color}`} />
-              </div>
-            </div>
+          <div key={card.title} className="rounded-card border border-border bg-card p-4 sm:p-5">
+            <p className="mb-2 flex items-center gap-1.5 text-[11.5px] font-medium tracking-[0.02em] text-muted-foreground">
+              <Icon className={`h-3.5 w-3.5 ${card.accent ? "text-accent-fg" : ""}`} strokeWidth={1.75} />
+              {card.title}
+            </p>
+            <p className="font-num text-2xl font-semibold leading-none text-foreground">{card.value}</p>
           </div>
         )
       })}

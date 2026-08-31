@@ -4,6 +4,7 @@ import { acceptInvitation } from "@/lib/actions/groups"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { cleanDisplayName } from "@/lib/utils"
 
 export default async function AcceptInvitationPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params
@@ -22,11 +23,9 @@ export default async function AcceptInvitationPage({ params }: { params: Promise
     .eq("invite_code", code)
     .maybeSingle()
 
-  console.log("[v0] Invitation lookup:", { code, invitation, inviteError, userId: user.id })
-
   if (inviteError || !invitation) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Invalid Invitation</CardTitle>
@@ -43,34 +42,37 @@ export default async function AcceptInvitationPage({ params }: { params: Promise
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Join Group</CardTitle>
           <CardDescription>You&apos;ve been invited to join a group</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg bg-blue-50 p-4">
-            <h3 className="font-semibold text-gray-900">{invitation.groups.name}</h3>
+          <div className="rounded-control border border-border bg-surface-2 p-4">
+            <h3 className="font-display font-medium tracking-[-0.01em] text-foreground">{cleanDisplayName(invitation.groups.name)}</h3>
             {invitation.groups.description && (
-              <p className="mt-1 text-sm text-gray-600">{invitation.groups.description}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{invitation.groups.description}</p>
             )}
-            <p className="mt-2 text-sm text-gray-500">
-              {invitation.groups.member_count} / {invitation.groups.max_members} members
+            <p className="mt-2 text-sm text-muted-foreground">
+              <span className="font-num">
+                {invitation.groups.member_count} / {invitation.groups.max_members}
+              </span>{" "}
+              members
             </p>
           </div>
 
           {invitation.status === "accepted" ? (
-            <div className="rounded-md bg-green-50 p-3">
-              <p className="text-sm text-green-800">You&apos;ve already accepted this invitation</p>
+            <div className="rounded-chip border border-success/30 bg-success/10 p-3 text-success">
+              <p className="text-sm">You&apos;ve already accepted this invitation</p>
             </div>
           ) : new Date(invitation.expires_at) < new Date() ? (
-            <div className="rounded-md bg-red-50 p-3">
-              <p className="text-sm text-red-800">This invitation has expired</p>
+            <div className="rounded-chip border border-danger/30 bg-danger/10 p-3 text-danger">
+              <p className="text-sm">This invitation has expired</p>
             </div>
           ) : invitation.groups.member_count >= invitation.groups.max_members ? (
-            <div className="rounded-md bg-red-50 p-3">
-              <p className="text-sm text-red-800">This group is full</p>
+            <div className="rounded-chip border border-danger/30 bg-danger/10 p-3 text-danger">
+              <p className="text-sm">This group is full</p>
             </div>
           ) : (
             <form

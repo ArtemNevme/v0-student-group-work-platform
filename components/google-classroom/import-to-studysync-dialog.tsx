@@ -17,6 +17,7 @@ import { Download } from "lucide-react"
 import { importToStudySync } from "@/lib/actions/google-classroom"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { cleanDisplayName } from "@/lib/utils"
 
 interface Group {
   id?: string
@@ -84,7 +85,7 @@ export function ImportToStudySyncDialog({
         variant: "destructive",
       })
       setIsImporting(false)
-    } else {
+    } else if ("assignmentId" in result && result.assignmentId) {
       toast({
         title: "Success!",
         description: "Assignment imported to StudySinc. You can now collaborate with your team.",
@@ -92,6 +93,8 @@ export function ImportToStudySyncDialog({
       setOpen(false)
       setIsImporting(false)
       router.push(`/dashboard/assignments/${result.assignmentId}`)
+    } else {
+      setIsImporting(false)
     }
   }
 
@@ -140,12 +143,12 @@ export function ImportToStudySyncDialog({
               <SelectContent>
                 {normalizedGroups.map((group) => (
                   <SelectItem key={group.id} value={group.id}>
-                    {group.name}
+                    {cleanDisplayName(group.name)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               The assignment will be added to the selected group and all members will be able to collaborate on it.
             </p>
           </div>

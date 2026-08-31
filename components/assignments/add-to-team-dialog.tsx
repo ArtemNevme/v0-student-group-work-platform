@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -34,18 +34,18 @@ export function AddToTeamDialog({ assignment }: AddToTeamDialogProps) {
   const [teams, setTeams] = useState<any[]>([])
   const [selectedTeam, setSelectedTeam] = useState<string>("")
 
-  useEffect(() => {
-    if (open) {
-      loadTeams()
-    }
-  }, [open])
-
-  const loadTeams = async () => {
+  const loadTeams = useCallback(async () => {
     const result = await getMyStudyTeams(assignment.subject_id)
     if (result.teams) {
       setTeams(result.teams)
     }
-  }
+  }, [assignment.subject_id])
+
+  useEffect(() => {
+    if (open) {
+      void loadTeams()
+    }
+  }, [loadTeams, open])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,7 +89,7 @@ export function AddToTeamDialog({ assignment }: AddToTeamDialogProps) {
               </SelectTrigger>
               <SelectContent>
                 {teams.length === 0 ? (
-                  <div className="p-2 text-sm text-gray-500">
+                  <div className="p-2 text-sm text-muted-foreground">
                     No teams available. Create a team in the subject page first.
                   </div>
                 ) : (

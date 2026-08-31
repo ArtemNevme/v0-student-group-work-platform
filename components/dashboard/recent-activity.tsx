@@ -31,18 +31,12 @@ export function RecentActivity({ activities }: RecentActivityProps) {
     }
   }
 
-  const getIconColor = (type: string) => {
+  const getIconClass = (type: string) => {
     switch (type) {
-      case "message":
-        return "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900"
-      case "task":
-        return "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900"
       case "achievement":
-        return "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900"
-      case "invitation":
-        return "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900"
+        return "text-accent-fg bg-accent-soft"
       default:
-        return "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800"
+        return "text-muted-foreground bg-secondary"
     }
   }
 
@@ -70,47 +64,43 @@ export function RecentActivity({ activities }: RecentActivityProps) {
   )
 
   return (
-    <Card className="shadow-md border-2 border-gray-100 dark:border-gray-800">
+    <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <div className="rounded-xl bg-blue-100 dark:bg-blue-900 p-2">
-            <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </div>
+        <CardTitle className="flex items-center gap-2 font-display text-[15px] font-medium tracking-[-0.01em]">
+          <MessageSquare className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
           Recent Activity
         </CardTitle>
       </CardHeader>
       <CardContent>
         {activities.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-6 mb-3">
-              <MessageSquare className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+            <div className="rounded-full bg-secondary p-5 mb-3">
+              <MessageSquare className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">No recent activity</p>
+            <p className="text-sm text-muted-foreground">No recent activity</p>
           </div>
         ) : (
           <div className="space-y-6">
             {Object.entries(groupedActivities).map(([day, dayActivities]) => (
               <div key={day}>
-                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
                   {day}
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {dayActivities.map((activity) => {
                     const Icon = getIcon(activity.type)
                     return (
                       <div
                         key={activity.id}
-                        className="flex gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        className="flex gap-3 rounded-control p-2.5 transition-colors duration-150 hover:bg-secondary"
                       >
-                        <div className={`rounded-xl p-2 ${getIconColor(activity.type)} flex-shrink-0`}>
-                          <Icon className="h-4 w-4" />
+                        <div className={`rounded-control p-2 ${getIconClass(activity.type)} flex-shrink-0 self-start`}>
+                          <Icon className="h-4 w-4" strokeWidth={1.75} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.title}</p>
-                          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                            {activity.message}
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                          <p className="text-sm font-medium text-foreground">{activity.title}</p>
+                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{activity.message}</p>
+                          <p className="mt-1 font-num text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                           </p>
                         </div>

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UserPlus, Loader2 } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { getMyFriends } from "@/lib/actions/friends"
 import { addFriendToGroup } from "@/lib/actions/groups"
 import { toast } from "sonner"
@@ -72,9 +73,12 @@ export function AddFriendToGroup({ groupId }: AddFriendToGroupProps) {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : friends.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-8">
-              No friends yet. Add friends from your profile page first.
-            </p>
+            <EmptyState
+              icon={UserPlus}
+              title="No friends yet"
+              description="Add friends from your profile page first."
+              className="border-none bg-transparent p-4"
+            />
           ) : (
             friends.map((friend) => (
               <div key={friend.id} className="flex items-center justify-between rounded-lg border p-3">

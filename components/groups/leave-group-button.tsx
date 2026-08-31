@@ -86,7 +86,7 @@ export function LeaveGroupButton({ groupId, groupName }: LeaveGroupButtonProps) 
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLeave} disabled={isLoading} className="bg-red-600 hover:bg-red-700">
+          <AlertDialogAction onClick={handleLeave} disabled={isLoading} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
             {isLoading ? "Leaving..." : "Leave Group"}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -2,16 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 const CATEGORIES = [
-  { value: "all", label: "All", color: "bg-gray-500" },
-  { value: "project", label: "Project", color: "bg-blue-500" },
-  { value: "homework", label: "Homework", color: "bg-green-500" },
-  { value: "exam", label: "Exam", color: "bg-red-500" },
-  { value: "presentation", label: "Presentation", color: "bg-purple-500" },
-  { value: "lab", label: "Lab", color: "bg-orange-500" },
-  { value: "other", label: "Other", color: "bg-gray-500" },
+  { value: "all", label: "All" },
+  { value: "project", label: "Project" },
+  { value: "homework", label: "Homework" },
+  { value: "exam", label: "Exam" },
+  { value: "presentation", label: "Presentation" },
+  { value: "lab", label: "Lab" },
+  { value: "other", label: "Other" },
 ]
 
 export function CategoryFilter() {
@@ -52,16 +51,16 @@ export function CategoryFilter() {
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-      <span className="text-sm font-medium text-gray-700">Filter by category:</span>
+      <span className="text-sm font-medium text-foreground">Filter by category:</span>
       {CATEGORIES.map((category) => (
         <Button
           key={category.value}
           variant={selectedCategory === category.value ? "default" : "outline"}
           size="sm"
           onClick={() => handleCategoryChange(category.value)}
-          className={cn("gap-2", selectedCategory === category.value && "shadow-md")}
+          className="gap-2"
         >
-          <div className={cn("h-3 w-3 rounded-full", category.color)} />
+          <div className="h-2.5 w-2.5 rounded-full bg-current opacity-50" />
           {category.label}
         </Button>
       ))}

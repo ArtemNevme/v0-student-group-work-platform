@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudySinc — Tasks (Mockup)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --surface: #fcfaf7;
+      --surface-2: #edeae3;
+      --fg: #2d2a26;
+      --muted: #6e6a63;
+      --border: #e6e1d8;
+      --accent: #c7802a;
+      --accent-soft: #f5e7d3;
+      --accent-fg: #8a5618;
+      --on-accent: #fffdf8;
+      --danger: #9e3a32;
+      --success: #4a7c59;
+      --radius-card: 10px;
+      --radius-control: 8px;
+      --radius-chip: 6px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', system-ui, sans-serif;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      padding: 20px 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px 24px;
+    }
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: var(--on-accent);
+      display: grid;
+      place-items: center;
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .brand-text {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 36px;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+    .nav-item:hover { background: var(--surface-2); color: var(--fg); }
+    .nav-item.active { background: var(--surface-2); color: var(--accent-fg); font-weight: 500; }
+    .main { padding: 28px 40px 40px; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -0.015em;
+      margin: 0;
+    }
+    .filters {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-btn {
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius-control);
+      font-size: 13px;
+      color: var(--fg);
+      cursor: pointer;
+    }
+    .filter-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .task-main { flex: 1; }
+    .task-title {
+      font-weight: 500;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    .task-meta {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+    }
+    .badge {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: var(--radius-chip);
+      font-family: 'Inter', sans-serif;
+    }
+    .badge-overdue { background: rgba(158,58,50,0.08); color: var(--danger); }
+    .badge-due { background: var(--surface-2); color: var(--muted); }
+    .badge-done { background: rgba(74,124,89,0.10); color: var(--success); }
+    .badge-group { background: var(--accent-soft); color: var(--accent-fg); }
+    .date { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); }
+    .empty {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-card);
+      padding: 60px 40px;
+      text-align: center;
+    }
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent-fg);
+      display: grid;
+      place-items: center;
+      margin: 0 auto 16px;
+      font-size: 22px;
+    }
+    .empty-title { font-weight: 500; font-size: 16px; margin-bottom: 6px; }
+    .empty-text { font-size: 14px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">S</div>
+      <div class="brand-text">StudySinc</div>
+    </div>
+    <nav>
+      <div class="nav-item">Dashboard</div>
+      <div class="nav-item active">Tasks</div>
+      <div class="nav-item">Calendar</div>
+      <div class="nav-item">Groups</div>
+      <div class="nav-item">Subjects</div>
+      <div class="nav-item">Notifications</div>
+      <div class="nav-item">Profile</div>
+    </nav>
+  </aside>
+  <main class="main">
+    <header>
+      <h1>Tasks</h1>
+      <div class="filters">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">In progress</button>
+        <button class="filter-btn">Overdue</button>
+        <button class="filter-btn">Done</button>
+      </div>
+    </header>
+
+    <div class="task-card">
+      <div class="task-main">
+        <div class="task-title">Write lab report</div>
+        <div class="task-meta">
+          <span class="badge badge-group">PI-301 · Software Engineering</span>
+        </div>
+      </div>
+      <span class="badge badge-overdue">overdue</span>
+      <span class="date">Jul 21</span>
+    </div>
+
+    <div class="task-card">
+      <div class="task-main">
+        <div class="task-title">Draft ER diagram</div>
+        <div class="task-meta">
+          <span class="badge badge-group">PI-301 · Software Engineering</span>
+        </div>
+      </div>
+      <span class="badge badge-due">in 2 days</span>
+      <span class="date">Jul 25</span>
+    </div>
+
+    <div class="task-card">
+      <div class="task-main">
+        <div class="task-title">Prototype schema in SQL</div>
+        <div class="task-meta">
+          <span class="badge badge-group">PI-301 · Software Engineering</span>
+        </div>
+      </div>
+      <span class="badge badge-due">in 3 days</span>
+      <span class="date">Jul 26</span>
+    </div>
+
+    <div class="task-card">
+      <div class="task-main">
+        <div class="task-title">Review course materials</div>
+        <div class="task-meta">
+          <span class="badge badge-group">Personal</span>
+        </div>
+      </div>
+      <span class="badge badge-done">done</span>
+      <span class="date">Jul 20</span>
+    </div>
+
+    <div class="empty" style="margin-top: 24px;">
+      <div class="empty-icon">☐</div>
+      <div class="empty-title">No more tasks</div>
+      <div class="empty-text">You’re all caught up for this filter.</div>
+    </div>
+  </main>
+</body>
+</html>

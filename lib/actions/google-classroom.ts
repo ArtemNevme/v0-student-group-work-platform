@@ -539,6 +539,23 @@ export async function getImportedAssignments() {
     return { error: "Not authenticated", assignments: [] }
   }
 
+  type ImportedAssignmentRow = {
+    id: string
+    title: string
+    description: string | null
+    deadline: string | null
+    status: string
+    imported_from_google_id: string
+    google_classroom_link: string | null
+    subject_id: string
+    created_at: string
+    subjects: {
+      id: string
+      name: string
+      google_course_id: string | null
+    } | null
+  }
+
   const { data, error } = await supabase
     .from("assignments")
     .select(`
@@ -554,8 +571,10 @@ export async function getImportedAssignments() {
     return { error: error.message, assignments: [] }
   }
 
+  const typedData = (data as unknown) as ImportedAssignmentRow[] | null
+
   return {
-    assignments: (data || []).map((a) => ({
+    assignments: (typedData || []).map((a) => ({
       id: a.id,
       title: a.title,
       description: a.description,

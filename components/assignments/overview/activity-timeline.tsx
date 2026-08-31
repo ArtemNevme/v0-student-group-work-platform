@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CheckCircle2, FileUp, Link2, MessageSquare, UserPlus, Clock } from "lucide-react"
+import { CheckCircle2, FileUp, Link2, MessageSquare, UserPlus, Clock, Activity } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Activity {
   id: string
@@ -79,19 +80,19 @@ export function ActivityTimeline({ tasks, files, links }: ActivityTimelineProps)
   const getActivityIcon = (type: Activity["type"]) => {
     switch (type) {
       case "task_completed":
-        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+        return <CheckCircle2 className="h-4 w-4 text-success" strokeWidth={1.75} />
       case "file_uploaded":
-        return <FileUp className="h-4 w-4 text-blue-500" />
+        return <FileUp className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
       case "link_added":
-        return <Link2 className="h-4 w-4 text-purple-500" />
+        return <Link2 className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
       case "comment":
-        return <MessageSquare className="h-4 w-4 text-amber-500" />
+        return <MessageSquare className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
       case "member_joined":
-        return <UserPlus className="h-4 w-4 text-green-500" />
+        return <UserPlus className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
       case "task_created":
-        return <Clock className="h-4 w-4 text-gray-400" />
+        return <Clock className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
       default:
-        return <Clock className="h-4 w-4 text-gray-400" />
+        return <Clock className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
     }
   }
 
@@ -106,11 +107,11 @@ export function ActivityTimeline({ tasks, files, links }: ActivityTimelineProps)
 
   if (sortedActivities.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Clock className="h-12 w-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
-        <p className="text-gray-500 dark:text-gray-400">No activity yet</p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Activity will appear here as you work</p>
-      </div>
+      <EmptyState
+        icon={Activity}
+        title="No activity yet"
+        description="Activity will appear here as team members complete tasks, upload files, and add links."
+      />
     )
   }
 
@@ -119,15 +120,15 @@ export function ActivityTimeline({ tasks, files, links }: ActivityTimelineProps)
       {sortedActivities.map((activity, index) => (
         <div key={activity.id} className="flex gap-3 py-2">
           <div className="flex flex-col items-center">
-            <div className="p-1.5 rounded-full bg-gray-50 dark:bg-gray-800">{getActivityIcon(activity.type)}</div>
-            {index < sortedActivities.length - 1 && <div className="w-px h-full bg-gray-200 dark:bg-gray-700 mt-1" />}
+            <div className="p-1.5 rounded-full bg-secondary">{getActivityIcon(activity.type)}</div>
+            {index < sortedActivities.length - 1 && <div className="w-px h-full bg-border mt-1" />}
           </div>
 
           <div className="flex-1 min-w-0 pb-2">
-            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{activity.description}</p>
+            <p className="text-sm text-foreground truncate">{activity.description}</p>
             <div className="flex items-center gap-2 mt-0.5">
-              {activity.user && <span className="text-xs text-gray-500 dark:text-gray-400">by {activity.user}</span>}
-              <span className="text-xs text-gray-400 dark:text-gray-500">{formatTime(activity.timestamp)}</span>
+              {activity.user && <span className="text-xs text-muted-foreground">by {activity.user}</span>}
+              <span className="font-num text-xs text-muted-foreground">{formatTime(activity.timestamp)}</span>
             </div>
           </div>
         </div>

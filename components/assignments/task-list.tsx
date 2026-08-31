@@ -35,6 +35,7 @@ import {
   Check,
   GripVertical,
 } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -252,10 +253,10 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
   }
 
   const statusColors = {
-    not_started: "bg-gray-100 text-gray-800",
-    assigned: "bg-gray-100 text-gray-800",
-    in_progress: "bg-blue-100 text-blue-800",
-    completed: "bg-green-100 text-green-800",
+    not_started: "bg-secondary text-muted-foreground",
+    assigned: "bg-secondary text-muted-foreground",
+    in_progress: "bg-accent-soft text-accent-fg",
+    completed: "bg-success/10 text-success",
   }
 
   const statusLabels = {
@@ -282,27 +283,27 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
     return (
       <Card
         className={`transition-all duration-200 ${
-          isCompleted ? "opacity-60 bg-gray-50" : "hover:shadow-md"
-        } ${isSelected ? "ring-2 ring-blue-500" : ""}`}
+          isCompleted ? "opacity-60" : ""
+        } ${isSelected ? "ring-2 ring-ring" : ""}`}
       >
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             {/* Drag handle and checkbox */}
             <div className="flex items-center gap-2 pt-1">
-              <GripVertical className="h-4 w-4 text-gray-300 cursor-grab" />
+              <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
               {showCheckbox && !isCompleted && (
                 <Checkbox
                   checked={isSelected}
                   onCheckedChange={(checked) => handleSelectTask(task.id, checked as boolean)}
                 />
               )}
-              {isCompleted && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+              {isCompleted && <CheckCircle2 className="h-5 w-5 text-success" strokeWidth={1.75} />}
             </div>
 
             {/* Task content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h4 className={`font-medium ${isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}>
+                <h4 className={`font-medium ${isCompleted ? "line-through text-muted-foreground" : "text-foreground"}`}>
                   {task.title}
                 </h4>
                 <Badge className={statusColors[taskStatus as keyof typeof statusColors]}>
@@ -311,22 +312,22 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
               </div>
 
               {task.description && (
-                <p className={`mt-1 text-sm line-clamp-2 ${isCompleted ? "text-gray-400" : "text-gray-600"}`}>
+                <p className="mt-1 text-sm line-clamp-2 text-muted-foreground">
                   {task.description}
                 </p>
               )}
 
-              <div className="mt-2 flex items-center gap-4 text-sm text-gray-500 flex-wrap">
+              <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                 {task.estimated_hours && (
                   <span className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {task.estimated_hours}h
+                    <Clock className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    <span className="font-num">{task.estimated_hours}h</span>
                   </span>
                 )}
                 {assignment && (
                   <div className="flex items-center gap-1.5">
                     <Avatar className="h-5 w-5">
-                      <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                      <AvatarFallback className="text-xs bg-accent-soft text-accent-fg">
                         {assignment.profiles.full_name?.[0] || "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -355,7 +356,7 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
                   {taskStatus === "in_progress" && (
                     <Button
                       size="sm"
-                      className="h-8 gap-1 bg-green-600 hover:bg-green-700"
+                      className="h-8 gap-1"
                       onClick={() => handleStatusChange(task.id, "completed")}
                       disabled={updatingTaskId === task.id}
                     >
@@ -376,7 +377,7 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
                   <EditTaskDialog task={task} members={members} />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="text-red-600"
+                    className="text-danger"
                     onClick={() => handleDelete(task.id)}
                     disabled={deletingTaskId === task.id}
                   >
@@ -411,15 +412,15 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 text-left hover:bg-gray-50 rounded-lg px-2 transition-colors">
+        <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 text-left hover:bg-secondary rounded-control px-2 transition-colors duration-150">
           {isOpen ? (
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
           ) : (
-            <ChevronRight className="h-4 w-4 text-gray-500" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
           )}
           {icon}
-          <span className="font-medium text-gray-700">{title}</span>
-          <Badge variant="secondary" className="ml-auto">
+          <span className="font-medium text-foreground">{title}</span>
+          <Badge variant="secondary" className="ml-auto font-num">
             {tasks.length}
           </Badge>
         </CollapsibleTrigger>
@@ -437,14 +438,14 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
       {/* Progress bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">
-            Progress: {completedCount}/{totalCount} tasks completed
+          <span className="text-sm font-medium text-foreground">
+            Progress: <span className="font-num">{completedCount}/{totalCount}</span> tasks completed
           </span>
-          <span className="text-sm font-medium text-gray-700">{progressPercent}%</span>
+          <span className="font-num text-sm font-medium text-foreground">{progressPercent}%</span>
         </div>
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
+            className="h-full bg-primary transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -452,7 +453,7 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search tasks..."
             value={searchQuery}
@@ -485,13 +486,13 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
       </div>
 
       {activeTasksCount > 0 && (
-        <div className="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-center gap-4 mb-4 p-3 bg-secondary rounded-control">
           <Checkbox
             checked={selectedTasks.size === activeTasksCount && activeTasksCount > 0}
             onCheckedChange={handleSelectAll}
           />
-          <span className="text-sm text-gray-600">
-            {selectedTasks.size > 0 ? `${selectedTasks.size} selected` : "Select all"}
+          <span className="text-sm text-muted-foreground">
+            {selectedTasks.size > 0 ? <><span className="font-num">{selectedTasks.size}</span> selected</> : "Select all"}
           </span>
 
           {selectedTasks.size > 0 && (
@@ -511,7 +512,7 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
                 variant="outline"
                 onClick={handleBatchDelete}
                 disabled={batchLoading}
-                className="gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
+                className="gap-1 text-danger hover:text-danger hover:bg-danger/10 bg-transparent"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Delete
@@ -525,20 +526,20 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
         <TaskGroup
           title="In Progress"
           tasks={groupedTasks.inProgress}
-          icon={<div className="h-2 w-2 rounded-full bg-blue-500" />}
+          icon={<div className="h-2 w-2 rounded-full bg-primary" />}
         />
 
         <TaskGroup
           title="Not Started"
           tasks={groupedTasks.notStarted}
-          icon={<div className="h-2 w-2 rounded-full bg-gray-400" />}
+          icon={<div className="h-2 w-2 rounded-full bg-muted-foreground/40" />}
         />
 
         {groupedTasks.completed.length > 0 && (
           <TaskGroup
             title="Completed"
             tasks={groupedTasks.completed}
-            icon={<div className="h-2 w-2 rounded-full bg-green-500" />}
+            icon={<div className="h-2 w-2 rounded-full bg-success" />}
             defaultOpen={showCompleted}
             showCheckboxes={false}
           />
@@ -547,13 +548,16 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
 
       {/* Empty state */}
       {filteredTasks.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          {searchQuery || filter !== "all" ? (
-            <p>No tasks match your filters</p>
-          ) : (
-            <p>No tasks yet. Add tasks to get started!</p>
-          )}
-        </div>
+        <EmptyState
+          icon={searchQuery || filter !== "all" ? Search : CheckCircle2}
+          title={searchQuery || filter !== "all" ? "No tasks match your filters" : "No tasks yet"}
+          description={
+            searchQuery || filter !== "all"
+              ? "Try adjusting your search or filters."
+              : "Add tasks to get started with this assignment."
+          }
+          variant="card"
+        />
       )}
 
       {/* Completion dialog */}
@@ -561,7 +565,7 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <PartyPopper className="h-6 w-6 text-yellow-500" />
+              <PartyPopper className="h-6 w-6 text-accent-fg" strokeWidth={1.75} />
               All Tasks Completed!
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -574,7 +578,6 @@ export function TaskList({ tasks, currentUserId, members, assignmentId, assignme
             <AlertDialogAction
               onClick={handleCompleteAssignment}
               disabled={completingAssignment}
-              className="bg-green-600 hover:bg-green-700"
             >
               {completingAssignment ? "Completing..." : "Complete Assignment"}
             </AlertDialogAction>

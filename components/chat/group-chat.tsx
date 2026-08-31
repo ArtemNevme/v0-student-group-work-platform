@@ -2,12 +2,20 @@
 
 import type React from "react"
 import { useState, useEffect, useRef, useCallback } from "react"
+import Image from "next/image"
+import type {
+  RealtimePostgresChangesPayload,
+  RealtimePostgresInsertPayload,
+  RealtimePostgresUpdatePayload,
+  REALTIME_SUBSCRIBE_STATES,
+} from "@supabase/realtime-js"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Send, Smile, Reply, Pencil, Trash2, X, Paperclip, Search } from "lucide-react"
+import { Send, Smile, Reply, Pencil, Trash2, X, Paperclip, Search, MessageSquare } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { sendMessage, editMessage, deleteMessage, addReaction, removeReaction } from "@/lib/actions/messages"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -131,7 +139,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             table: "messages",
             filter: `group_id=eq.${groupId}`,
           },
-          async (payload) => {
+          async (payload: RealtimePostgresInsertPayload<{ id: string; [key: string]: any }>) => {
             const { data } = await supabase
               .from("messages")
               .select(`
@@ -161,7 +169,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             table: "messages",
             filter: `group_id=eq.${groupId}`,
           },
-          async (payload) => {
+          async (payload: RealtimePostgresUpdatePayload<{ id: string; content: string; is_edited: boolean; is_deleted: boolean; [key: string]: any }>) => {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === payload.new.id
@@ -183,7 +191,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             schema: "public",
             table: "message_reactions",
           },
-          async (payload) => {
+          async (payload: RealtimePostgresChangesPayload<{ id: string; [key: string]: any }>) => {
             if (payload.new && typeof payload.new === "object" && "message_id" in payload.new) {
               const messageId = payload.new.message_id
               const { data: reactions } = await supabase
@@ -195,7 +203,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             }
           },
         )
-        .subscribe(async (status) => {
+        .subscribe(async (status: REALTIME_SUBSCRIBE_STATES) => {
           if (status === "SUBSCRIBED") {
             const currentMember = members.find((m) => m.user_id === currentUserId)
             await channel.track({
@@ -335,12 +343,12 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
 
   return (
     <Card className="flex flex-col h-[600px] overflow-hidden">
-      <CardHeader className="flex-shrink-0 flex flex-row items-center justify-between py-3 px-4 border-b">
+      <CardHeader className="flex-shrink-0 flex flex-row items-center justify-between py-3 px-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <CardTitle className="text-lg">Group Chat</CardTitle>
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-full bg-green-500" />
-            <span className="text-xs text-muted-foreground">{onlineUsers.size} online</span>
+          <CardTitle className="font-display text-[17px] font-medium tracking-[-0.01em] text-foreground">Group Chat</CardTitle>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-success" />
+            <span className="font-num text-xs text-muted-foreground">{onlineUsers.size} online</span>
           </div>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setShowSearch(!showSearch)} className="h-8 w-8">
@@ -349,7 +357,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
       </CardHeader>
 
       {showSearch && (
-        <div className="flex-shrink-0 px-4 py-2 border-b bg-muted/30">
+        <div className="flex-shrink-0 px-4 py-2 border-b border-border bg-secondary">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -370,7 +378,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
             )}
           </div>
           {searchQuery && (
-            <p className="text-xs text-muted-foreground mt-1">Found {filteredMessages.length} message(s)</p>
+            <p className="text-xs text-muted-foreground mt-1">Found <span className="font-num">{filteredMessages.length}</span> message(s)</p>
           )}
         </div>
       )}
@@ -378,8 +386,15 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
       <CardContent className="flex-1 flex flex-col p-0 min-h-0 overflow-hidden">
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {filteredMessages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p>{searchQuery ? "No messages found" : "No messages yet. Start the conversation!"}</p>
+            <div className="flex h-full items-center justify-center">
+              <EmptyState
+                icon={MessageSquare}
+                title={searchQuery ? "No messages found" : "No messages yet"}
+                description={
+                  searchQuery ? "Try a different search term." : "Start the conversation by sending a message below."
+                }
+                className="border-none bg-transparent p-4"
+              />
             </div>
           ) : (
             filteredMessages.map((message) => {
@@ -406,8 +421,10 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                     {message.reply_to && !isDeleted && (
                       <div
                         className={cn(
-                          "text-xs px-2 py-1 rounded mb-1 border-l-2 border-blue-400",
-                          isOwnMessage ? "bg-blue-500/20" : "bg-muted",
+                          "text-xs px-2 py-1 rounded-chip mb-1 border-l-2",
+                          isOwnMessage
+                            ? "bg-accent-soft text-accent-fg border-accent-fg/40"
+                            : "bg-secondary border-border",
                         )}
                       >
                         <span className="font-medium">{(message.reply_to as any).profiles?.full_name}</span>
@@ -417,12 +434,12 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
 
                     <div
                       className={cn(
-                        "rounded-2xl px-4 py-2 relative",
+                        "rounded-control px-4 py-2 relative",
                         isDeleted
-                          ? "bg-muted text-muted-foreground italic"
+                          ? "bg-secondary text-muted-foreground italic"
                           : isOwnMessage
-                            ? "bg-blue-600 text-white"
-                            : "bg-muted text-foreground",
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-secondary text-foreground",
                       )}
                     >
                       {isDeleted ? (
@@ -434,10 +451,13 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                           {message.attachment_url && (
                             <div className="mt-2">
                               {message.attachment_type === "image" ? (
-                                <img
+                                <Image
                                   src={message.attachment_url || "/placeholder.svg"}
                                   alt="Attachment"
-                                  className="max-w-full rounded-lg max-h-60 object-cover"
+                                  width={640}
+                                  height={384}
+                                  unoptimized
+                                  className="max-w-full rounded-control max-h-60 object-cover"
                                 />
                               ) : (
                                 <a
@@ -458,7 +478,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                       {!isDeleted && (
                         <div
                           className={cn(
-                            "absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-background rounded-lg shadow-md border p-1",
+                            "absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1 bg-card rounded-control shadow-sm border border-border p-1",
                             isOwnMessage ? "left-0 -translate-x-full -ml-2" : "right-0 translate-x-full ml-2",
                           )}
                         >
@@ -510,14 +530,14 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                       {showEmojiPicker === message.id && (
                         <div
                           className={cn(
-                            "absolute bottom-full mb-2 bg-background rounded-lg shadow-lg border p-2 flex gap-1 z-10",
+                            "absolute bottom-full mb-2 bg-card rounded-control shadow-sm border border-border p-2 flex gap-1 z-10",
                             isOwnMessage ? "right-0" : "left-0",
                           )}
                         >
                           {EMOJI_OPTIONS.map((emoji) => (
                             <button
                               key={emoji}
-                              className="hover:bg-muted p-1 rounded text-lg"
+                              className="hover:bg-secondary p-1 rounded-chip text-lg transition-colors duration-150"
                               onClick={() => handleAddReaction(message.id, emoji)}
                             >
                               {emoji}
@@ -533,10 +553,10 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                           <button
                             key={emoji}
                             className={cn(
-                              "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border",
+                              "flex items-center gap-1 px-2 py-0.5 rounded-chip text-xs border transition-colors duration-150",
                               data.userReactionId
-                                ? "bg-blue-100 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700"
-                                : "bg-muted hover:bg-muted/80",
+                                ? "bg-accent-soft border-accent-fg/30 text-accent-fg"
+                                : "bg-secondary border-transparent text-foreground hover:bg-secondary/70",
                             )}
                             onClick={() =>
                               data.userReactionId
@@ -546,7 +566,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
                             title={data.users.join(", ")}
                           >
                             <span>{emoji}</span>
-                            <span>{data.count}</span>
+                            <span className="font-num">{data.count}</span>
                           </button>
                         ))}
                       </div>
@@ -566,9 +586,9 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
 
         {/* Edit modal */}
         {editingMessage && (
-          <div className="px-4 py-3 border-t bg-muted/50">
+          <div className="px-4 py-3 border-t border-border bg-secondary">
             <div className="flex items-center gap-2 mb-2">
-              <Pencil className="h-4 w-4 text-blue-500" />
+              <Pencil className="h-4 w-4 text-accent-fg" strokeWidth={1.75} />
               <span className="text-sm font-medium">Edit message</span>
               <Button
                 variant="ghost"
@@ -602,8 +622,8 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
         )}
 
         {replyTo && !editingMessage && (
-          <div className="px-4 py-2 border-t bg-muted/30 flex items-center gap-2">
-            <Reply className="h-4 w-4 text-blue-500" />
+          <div className="px-4 py-2 border-t border-border bg-secondary flex items-center gap-2">
+            <Reply className="h-4 w-4 text-accent-fg" strokeWidth={1.75} />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium">{replyTo.profiles.full_name}</p>
               <p className="text-xs text-muted-foreground truncate">{replyTo.content}</p>
@@ -615,14 +635,16 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
         )}
 
         {mentionSearch !== null && mentionSuggestions.length > 0 && (
-          <div className="px-4 py-2 border-t bg-background">
+          <div className="px-4 py-2 border-t border-border bg-card">
             <div className="flex flex-wrap gap-2">
               {mentionSuggestions.slice(0, 5).map((member, idx) => (
                 <button
                   key={member.user_id}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm",
-                    idx === mentionIndex ? "bg-blue-100 dark:bg-blue-900/30" : "bg-muted hover:bg-muted/80",
+                    "flex items-center gap-2 px-3 py-1.5 rounded-control text-sm transition-colors duration-150",
+                    idx === mentionIndex
+                      ? "bg-accent-soft text-accent-fg"
+                      : "bg-secondary text-foreground hover:bg-secondary/70",
                   )}
                   onClick={() => insertMention(member)}
                 >
@@ -637,7 +659,7 @@ export function GroupChat({ groupId, initialMessages, currentUserId, members = [
         )}
 
         {!editingMessage && (
-          <form onSubmit={handleSend} className="flex-shrink-0 p-4 border-t flex gap-2">
+          <form onSubmit={handleSend} className="flex-shrink-0 p-4 border-t border-border flex gap-2">
             <Input
               ref={inputRef}
               value={newMessage}

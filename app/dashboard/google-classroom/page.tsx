@@ -2,7 +2,6 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getGoogleClassroomConnection, getGoogleClassroomSubjects } from "@/lib/actions/google-classroom"
 import { getMyGroups } from "@/lib/actions/groups"
-import { DashboardHeader } from "@/components/layout/dashboard-header"
 import { ConnectGoogleClassroomButton } from "@/components/google-classroom/connect-button"
 import { SyncGoogleClassroomButton } from "@/components/google-classroom/sync-button"
 import { GoogleClassroomSubjectsList } from "@/components/google-classroom/subjects-list"
@@ -33,39 +32,38 @@ export default async function GoogleClassroomPage({
   // Calculate total assignments across all subjects
   const totalAssignments = subjects.reduce((acc, subject) => acc + (subject.assignments?.length || 0), 0)
   const upcomingAssignments = subjects.reduce((acc, subject) => {
-    const upcoming = subject.assignments?.filter((a) => a.deadline && new Date(a.deadline) > new Date()) || []
+    const upcoming = subject.assignments?.filter((a: { deadline?: string | null }) => a.deadline && new Date(a.deadline) > new Date()) || []
     return acc + upcoming.length
   }, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader />
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+      <div className="mb-8">
+        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">
+          Google Classroom Integration
+        </h1>
+        <p className="mt-1 text-muted-foreground">Import your courses and assignments from Google Classroom</p>
+      </div>
 
-      <main className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Google Classroom Integration</h1>
-          <p className="mt-1 text-gray-600">Import your courses and assignments from Google Classroom</p>
-        </div>
+      {params.success && (
+        <Alert className="mb-6 border-border bg-card">
+          <CheckCircle className="h-4 w-4 text-success" />
+          <AlertDescription className="text-foreground">
+            Google Classroom connected successfully! Click "Sync Now" to import your data.
+          </AlertDescription>
+        </Alert>
+      )}
 
-        {params.success && (
-          <Alert className="mb-6 border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Successfully connected to Google Classroom! Click "Sync Now" to import your data.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {params.error && (
-          <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              {params.error === "access_denied"
-                ? "Access was denied. Please try again and grant the necessary permissions."
-                : "An error occurred. Please try again."}
-            </AlertDescription>
-          </Alert>
-        )}
+      {params.error && (
+        <Alert className="mb-6 border-danger/30 bg-danger/10">
+          <AlertCircle className="h-4 w-4 text-danger" />
+          <AlertDescription className="text-danger">
+            {params.error === "access_denied"
+              ? "Access was denied. Please try again and grant the necessary permissions."
+              : "An error occurred. Please try again."}
+          </AlertDescription>
+        </Alert>
+      )}
 
         {!connected ? (
           <Card className="max-w-2xl">
@@ -81,7 +79,7 @@ export default async function GoogleClassroomPage({
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <h3 className="font-semibold">What we'll access:</h3>
-                <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+                <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
                   <li>Your enrolled courses</li>
                   <li>Course assignments and due dates</li>
                   <li>Assignment descriptions and details</li>
@@ -89,7 +87,7 @@ export default async function GoogleClassroomPage({
               </div>
               <div className="space-y-2">
                 <h3 className="font-semibold">We will NOT:</h3>
-                <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+                <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
                   <li>Create, modify, or delete anything in Google Classroom</li>
                   <li>Access your grades or submissions</li>
                   <li>Share your data with anyone</li>
@@ -105,12 +103,12 @@ export default async function GoogleClassroomPage({
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                       Connected to Google Classroom
                     </CardTitle>
                     <CardDescription>
                       {connection?.last_synced_at
-                        ? `Last synced: ${new Date(connection.last_synced_at).toLocaleString()}`
+                        ? `Last synced: ${new Date(connection.last_synced_at).toLocaleString("en-US")}`
                         : "Not yet synced"}
                     </CardDescription>
                   </div>
@@ -128,8 +126,8 @@ export default async function GoogleClassroomPage({
                   <CardTitle className="text-base">Courses</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-blue-600">{subjects.length}</div>
-                  <p className="text-sm text-gray-600">Active courses</p>
+                  <div className="font-num text-2xl font-semibold text-foreground">{subjects.length}</div>
+                  <p className="text-sm text-muted-foreground">Active courses</p>
                 </CardContent>
               </Card>
 
@@ -138,8 +136,8 @@ export default async function GoogleClassroomPage({
                   <CardTitle className="text-base">Assignments</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-purple-600">{totalAssignments}</div>
-                  <p className="text-sm text-gray-600">Total assignments</p>
+                  <div className="font-num text-2xl font-semibold text-foreground">{totalAssignments}</div>
+                  <p className="text-sm text-muted-foreground">Total assignments</p>
                 </CardContent>
               </Card>
 
@@ -148,8 +146,8 @@ export default async function GoogleClassroomPage({
                   <CardTitle className="text-base">Upcoming</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-orange-600">{upcomingAssignments}</div>
-                  <p className="text-sm text-gray-600">Due soon</p>
+                  <div className="font-num text-2xl font-semibold text-accent-fg">{upcomingAssignments}</div>
+                  <p className="text-sm text-muted-foreground">Due soon</p>
                 </CardContent>
               </Card>
             </div>
@@ -157,7 +155,6 @@ export default async function GoogleClassroomPage({
             <GoogleClassroomSubjectsList subjects={subjects} groups={groups || []} />
           </div>
         )}
-      </main>
     </div>
   )
 }

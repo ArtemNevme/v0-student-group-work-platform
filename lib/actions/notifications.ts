@@ -3,6 +3,17 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
+const NOTIFICATION_TYPES = new Set([
+  "message",
+  "mention",
+  "task",
+  "deadline",
+  "invitation",
+  "achievement",
+  "friend_request",
+  "group_added",
+])
+
 export async function getMyNotifications() {
   const supabase = await createClient()
 
@@ -72,14 +83,31 @@ export async function markAllNotificationsAsRead() {
 }
 
 export async function createNotification(userId: string, type: string, title: string, message: string, link?: string) {
+  if (!NOTIFICATION_TYPES.has(type)) {
+    return { error: "Invalid notification type" }
+  }
+  if (!title.trim() || title.length > 160 || !message.trim() || message.length > 1000) {
+    return { error: "Invalid notification content" }
+  }
+  if (link && (!link.startsWith("/") || link.startsWith("//"))) {
+    return { error: "Invalid notification link" }
+  }
+
   const supabase = await createClient()
 
-  const { error } = await supabase.from("notifications").insert({
-    user_id: userId,
-    type,
-    title,
-    message,
-    link,
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: "Not authenticated" }
+  }
+
+  const { error } = await supabase.rpc("create_notification", {
+    p_user_id: userId,
+    p_type: type,
+    p_title: title,
+    p_message: message,
+    p_link: link || null,
   })
 
   if (error) {

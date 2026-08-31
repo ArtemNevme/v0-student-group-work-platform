@@ -27,6 +27,20 @@ const workPlanSchema = z.object({
     .describe("Recommended sources for research"),
 })
 
+const requestSchema = z.object({
+  assignmentId: z.string().uuid(),
+  sourceTypes: z.array(z.enum(["news", "book", "scientific", "video", "other"])).max(5).default([]),
+  files: z
+    .array(
+      z.object({
+        name: z.string().max(160),
+        type: z.string().max(100),
+      }),
+    )
+    .max(20)
+    .default([]),
+})
+
 export async function POST(req: Request) {
   const supabase = await createClient()
 
@@ -37,19 +51,16 @@ export async function POST(req: Request) {
     return Response.json({ error: "Not authenticated" }, { status: 401 })
   }
 
-  const { assignmentId, sourceTypes, files = [] } = await req.json()
+  const parsedRequest = requestSchema.safeParse(await req.json())
+  if (!parsedRequest.success) {
+    return Response.json({ error: "Invalid request" }, { status: 400 })
+  }
+
+  const { assignmentId, sourceTypes, files } = parsedRequest.data
 
   const { data: assignment, error: assignmentError } = await supabase
     .from("assignments")
-    .select(
-      `
-      *,
-      groups (
-        id,
-        name
-      )
-    `,
-    )
+    .select("id, title, description, deadline, created_by, group_id, groups(id, name)")
     .eq("id", assignmentId)
     .single()
 
@@ -57,33 +68,65 @@ export async function POST(req: Request) {
     return Response.json({ error: "Assignment not found" }, { status: 404 })
   }
 
-  const { data: membership } = await supabase
-    .from("group_members")
-    .select("*")
-    .eq("group_id", assignment.group_id)
-    .eq("user_id", user.id)
-    .single()
+  let members: { user_id: string; profiles: { id: string; full_name: string | null; email: string | null } }[] = []
 
-  if (!membership) {
-    return Response.json({ error: "Not authorized" }, { status: 403 })
+  if (assignment.group_id) {
+    const { data: membership } = await supabase
+      .from("group_members")
+      .select("*")
+      .eq("group_id", assignment.group_id)
+      .eq("user_id", user.id)
+      .single()
+
+    if (!membership) {
+      return Response.json({ error: "Not authorized" }, { status: 403 })
+    }
+
+    const { data: groupMembers, error: membersError } = await supabase
+      .from("group_members")
+      .select(
+        `
+        *,
+        profiles (
+          id,
+          full_name,
+          email
+        )
+      `,
+      )
+      .eq("group_id", assignment.group_id)
+
+    if (membersError || !groupMembers) {
+      return Response.json({ error: "Failed to fetch members" }, { status: 500 })
+    }
+
+    members = groupMembers as typeof members
+  } else {
+    if (assignment.created_by !== user.id) {
+      return Response.json({ error: "Not authorized" }, { status: 403 })
+    }
+
+    const { data: profile } = await supabase.from("profiles").select("id, full_name, email").eq("id", user.id).single()
+
+    members = [
+      {
+        user_id: user.id,
+        profiles: {
+          id: user.id,
+          full_name: profile?.full_name || user.user_metadata?.full_name || null,
+          email: profile?.email || user.email || null,
+        },
+      },
+    ]
   }
 
-  const { data: members, error: membersError } = await supabase
-    .from("group_members")
-    .select(
-      `
-      *,
-      profiles (
-        id,
-        full_name,
-        email
-      )
-    `,
-    )
-    .eq("group_id", assignment.group_id)
-
-  if (membersError || !members) {
-    return Response.json({ error: "Failed to fetch members" }, { status: 500 })
+  const { data: quotaAvailable, error: quotaError } = await supabase.rpc("consume_ai_quota")
+  if (quotaError) {
+    console.error("AI quota check failed:", quotaError)
+    return Response.json({ error: "AI service is temporarily unavailable" }, { status: 503 })
+  }
+  if (!quotaAvailable) {
+    return Response.json({ error: "Daily AI request limit reached" }, { status: 429 })
   }
 
   const deadline = new Date(assignment.deadline)
@@ -98,7 +141,7 @@ export async function POST(req: Request) {
   const filesText =
     files.length > 0
       ? `\n\nUploaded Files (${files.length} total):
-${files.map((f: any, i: number) => `${i + 1}. ${f.name} (${f.type})`).join("\n")}
+${files.map((file, index) => `${index + 1}. ${file.name} (${file.type})`).join("\n")}
 
 IMPORTANT: Analyze these uploaded files to understand the assignment requirements. The files likely contain:
 - Assignment instructions and requirements

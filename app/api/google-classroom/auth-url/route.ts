@@ -1,8 +1,17 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { headers } from "next/headers"
 
-export async function GET() {
+const OAUTH_STATE_COOKIE = "google-classroom-oauth-state"
+
+function getAppUrl(request: NextRequest) {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
+  }
+
+  return process.env.NODE_ENV === "development" ? request.nextUrl.origin : "https://studysync.click"
+}
+
+export async function GET(request: NextRequest) {
   const supabase = await createClient()
 
   const {
@@ -13,10 +22,8 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
   }
 
-  const headersList = await headers()
-  const host = headersList.get("host") || "studysync.click"
-  const protocol = host.includes("localhost") ? "http" : "https"
-  const appUrl = `${protocol}://${host}`
+  const appUrl = getAppUrl(request)
+  const state = crypto.randomUUID()
 
   const scopes = [
     "https://www.googleapis.com/auth/classroom.courses.readonly",
@@ -32,10 +39,18 @@ export async function GET() {
     scope: scopes.join(" "),
     access_type: "offline",
     prompt: "consent",
-    state: user.id,
+    state,
   })
 
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
 
-  return NextResponse.json({ authUrl })
+  const response = NextResponse.json({ authUrl })
+  response.cookies.set(OAUTH_STATE_COOKIE, state, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 10 * 60,
+    path: "/",
+  })
+  return response
 }

@@ -21,6 +21,7 @@ import { BookOpen, Newspaper, FlaskConical, Video, LinkIcon, Plus, Trash2, Exter
 import { addLink, deleteLink } from "@/lib/actions/files"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Source {
   id: string
@@ -58,12 +59,12 @@ const categoryLabels = {
 }
 
 const categoryColors = {
-  news: "bg-orange-100 text-orange-800",
-  book: "bg-purple-100 text-purple-800",
-  scientific: "bg-blue-100 text-blue-800",
-  video: "bg-red-100 text-red-800",
-  ai_recommended: "bg-green-100 text-green-800",
-  other: "bg-gray-100 text-gray-800",
+  news: "bg-secondary text-muted-foreground",
+  book: "bg-secondary text-muted-foreground",
+  scientific: "bg-secondary text-muted-foreground",
+  video: "bg-secondary text-muted-foreground",
+  ai_recommended: "bg-accent-soft text-accent-fg",
+  other: "bg-secondary text-muted-foreground",
 }
 
 export function SourcesList({ assignmentId, sources }: SourcesListProps) {
@@ -115,7 +116,7 @@ export function SourcesList({ assignmentId, sources }: SourcesListProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Sources & Resources ({sources.length})</CardTitle>
+          <CardTitle>Sources & Resources (<span className="font-num">{sources.length}</span>)</CardTitle>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button size="sm">
@@ -190,19 +191,22 @@ export function SourcesList({ assignmentId, sources }: SourcesListProps) {
       </CardHeader>
       <CardContent>
         {sources.length === 0 ? (
-          <div className="py-8 text-center text-sm text-gray-500">
-            No sources added yet. Add helpful resources to support your work.
-          </div>
+          <EmptyState
+            icon={LinkIcon}
+            title="No sources added yet"
+            description="Add helpful resources to support your work."
+            variant="card"
+          />
         ) : (
           <div className="space-y-3">
             {sources.map((source) => {
               const Icon = categoryIcons[source.category as keyof typeof categoryIcons] || LinkIcon
               return (
-                <div key={source.id} className="rounded-lg border p-4">
+                <div key={source.id} className="rounded-card border border-border p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 flex-1">
-                      <div className="rounded-md bg-blue-50 p-2">
-                        <Icon className="h-4 w-4 text-blue-600" />
+                      <div className="rounded-control bg-secondary p-2">
+                        <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -211,17 +215,17 @@ export function SourcesList({ assignmentId, sources }: SourcesListProps) {
                             {categoryLabels[source.category as keyof typeof categoryLabels]}
                           </Badge>
                         </div>
-                        {source.description && <p className="text-sm text-gray-600 mb-2">{source.description}</p>}
-                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                        {source.description && <p className="text-sm text-muted-foreground mb-2">{source.description}</p>}
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <span>Added by {source.profiles.full_name}</span>
                           <a
                             href={source.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center text-blue-600 hover:underline"
+                            className="inline-flex items-center text-accent-fg hover:underline"
                           >
                             Open link
-                            <ExternalLink className="ml-1 h-3 w-3" />
+                            <ExternalLink className="ml-1 h-3 w-3" strokeWidth={1.75} />
                           </a>
                         </div>
                       </div>
@@ -232,7 +236,7 @@ export function SourcesList({ assignmentId, sources }: SourcesListProps) {
                       onClick={() => handleDelete(source.id)}
                       disabled={deletingId === source.id}
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-4 w-4 text-danger" strokeWidth={1.75} />
                     </Button>
                   </div>
                 </div>

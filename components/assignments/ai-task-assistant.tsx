@@ -127,10 +127,10 @@ export function AITaskAssistant({ assignmentId, members }: AITaskAssistantProps)
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <Sparkles className="h-12 w-12 animate-spin text-blue-600" />
+            <Sparkles className="h-12 w-12 animate-spin text-accent-fg" strokeWidth={1.75} />
             <div className="text-center">
-              <p className="text-lg font-semibold text-gray-900">Please wait a moment...</p>
-              <p className="text-sm text-gray-600 mt-1">We're getting a response from the AI assistant</p>
+              <p className="text-lg font-semibold text-foreground">Please wait a moment...</p>
+              <p className="text-sm text-muted-foreground mt-1">We're getting a response from the AI assistant</p>
             </div>
           </div>
         ) : !action ? (
@@ -157,8 +157,8 @@ export function AITaskAssistant({ assignmentId, members }: AITaskAssistantProps)
             </Button>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-control bg-danger/10 p-3">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
           </div>
@@ -171,22 +171,22 @@ export function AITaskAssistant({ assignmentId, members }: AITaskAssistantProps)
               </Button>
             </div>
 
-            <p className="text-sm text-gray-600">{improvements.summary}</p>
+            <p className="text-sm text-muted-foreground">{improvements.summary}</p>
 
             <div className="space-y-3">
               {improvements.improvements.map((improvement, index) => (
-                <div key={index} className="rounded-lg border p-4">
+                <div key={index} className="rounded-card border border-border p-4">
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                    <span className="rounded-chip bg-accent-soft px-2 py-1 text-xs font-medium text-accent-fg">
                       {improvement.type}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700">{improvement.suggestion}</p>
+                  <p className="text-sm text-foreground">{improvement.suggestion}</p>
                   {improvement.newTask && (
-                    <div className="mt-3 rounded-md bg-gray-50 p-3">
+                    <div className="mt-3 rounded-control bg-secondary p-3">
                       <h4 className="font-medium">{improvement.newTask.title}</h4>
-                      <p className="mt-1 text-sm text-gray-600">{improvement.newTask.description}</p>
-                      <p className="mt-1 text-xs text-gray-500">{improvement.newTask.estimatedHours}h estimated</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{improvement.newTask.description}</p>
+                      <p className="mt-1 text-xs text-muted-foreground"><span className="font-num">{improvement.newTask.estimatedHours}h</span> estimated</p>
                     </div>
                   )}
                 </div>
@@ -204,13 +204,13 @@ export function AITaskAssistant({ assignmentId, members }: AITaskAssistantProps)
 
             <div className="space-y-3">
               {suggestions.map((task, index) => (
-                <div key={index} className="rounded-lg border p-4">
+                <div key={index} className="rounded-card border border-border p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-medium">{task.title}</h4>
-                      <p className="mt-1 text-sm text-gray-600">{task.description}</p>
-                      <p className="mt-2 text-xs text-gray-500">
-                        {task.estimatedHours}h estimated • {task.rationale}
+                      <p className="mt-1 text-sm text-muted-foreground">{task.description}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        <span className="font-num">{task.estimatedHours}h</span> estimated • {task.rationale}
                       </p>
                     </div>
                     <Button size="sm" onClick={() => handleAddSuggestion(task)}>
@@ -223,8 +223,8 @@ export function AITaskAssistant({ assignmentId, members }: AITaskAssistantProps)
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-control bg-danger/10 p-3">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
           </div>

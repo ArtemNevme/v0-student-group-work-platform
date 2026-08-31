@@ -41,6 +41,24 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 5. Click **Save**
 6. **Redeploy** your application for changes to take effect
 
+## Required database security migration
+
+Before deploying the current application code, apply
+`scripts/042_secure_collaboration_rls.sql` in the Supabase SQL Editor. It
+replaces older permissive RLS policies, enables authorization for files,
+messages, friendships and notifications, and installs the RPC functions used
+by AI quotas and server-triggered notifications.
+
+1. Open the production Supabase project and create a database backup.
+2. Run the whole `042_secure_collaboration_rls.sql` script once in the SQL Editor.
+3. Confirm it completed without errors, then deploy the application.
+4. Smoke-test a group invitation, task assignment, chat message and AI request
+   with two ordinary user accounts.
+
+Do not deploy the code that calls `consume_ai_quota` or
+`create_notification` before this migration: those RPC functions are created
+by the script.
+
 ## After Adding Variables
 
 After adding or updating environment variables:

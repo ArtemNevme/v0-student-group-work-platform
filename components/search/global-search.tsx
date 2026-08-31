@@ -13,7 +13,6 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command"
-import { Button } from "@/components/ui/button"
 import { Search, FileText, Users, User, CheckCircle, Circle, Calendar, LayoutDashboard, ListTodo } from "lucide-react"
 import { globalSearch, getRecentItems, type SearchResult } from "@/lib/actions/search"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -22,7 +21,7 @@ const iconMap: Record<string, React.ReactNode> = {
   "file-text": <FileText className="h-4 w-4" />,
   users: <Users className="h-4 w-4" />,
   user: <User className="h-4 w-4" />,
-  "check-circle": <CheckCircle className="h-4 w-4 text-green-500" />,
+  "check-circle": <CheckCircle className="h-4 w-4 text-success" />,
   circle: <Circle className="h-4 w-4" />,
 }
 
@@ -87,17 +86,17 @@ export function GlobalSearch() {
 
   return (
     <>
-      <Button
-        variant="outline"
-        className="relative h-9 w-9 p-0 xl:h-10 xl:w-60 xl:justify-start xl:px-3 xl:py-2 bg-transparent"
+      <button
+        type="button"
         onClick={() => setOpen(true)}
+        className="flex h-[34px] w-9 items-center gap-2.5 rounded-control border border-border bg-card px-2.5 text-[13px] text-muted-foreground transition-colors duration-150 hover:bg-secondary sm:w-full sm:max-w-[320px]"
       >
-        <Search className="h-4 w-4 xl:mr-2" />
-        <span className="hidden xl:inline-flex">Search...</span>
-        <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 xl:flex">
-          <span className="text-xs">⌘</span>K
+        <Search className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+        <span className="hidden truncate sm:inline">Search or command…</span>
+        <kbd className="ml-auto hidden rounded border border-border bg-background px-1.5 py-0.5 font-num text-[11px] text-muted-foreground sm:inline-flex">
+          Ctrl K
         </kbd>
-      </Button>
+      </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Search tasks, assignments, groups..." value={query} onValueChange={setQuery} />

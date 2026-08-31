@@ -15,7 +15,9 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { ArrowLeft, UserMinus } from "lucide-react"
+import { ArrowLeft, UserMinus, ClipboardList } from "lucide-react"
+import { cleanDisplayName } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/empty-state"
 import { LeaveGroupButton } from "@/components/groups/leave-group-button"
 
 export default async function GroupDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,10 +35,10 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
 
   if (result.error || !result.group) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex items-center justify-center py-24">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Group not found</h2>
-          <p className="mt-2 text-gray-600">{result.error || "This group does not exist"}</p>
+          <h2 className="font-display text-2xl font-semibold text-foreground">Group not found</h2>
+          <p className="mt-2 text-muted-foreground">{result.error || "This group does not exist"}</p>
           <Button asChild className="mt-4">
             <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
@@ -63,23 +65,22 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
     })) || []
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
-        <div className="container mx-auto px-6 py-4">
-          <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Link>
-        </div>
-      </header>
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+      <Link
+        href="/dashboard/groups"
+        className="mb-4 inline-flex items-center text-sm text-muted-foreground transition-colors duration-150 hover:text-accent-fg"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" strokeWidth={1.75} />
+        All groups
+      </Link>
 
-      <main className="container mx-auto px-6 py-8">
+      <div>
         <div className="mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{group.name}</h1>
-              {group.category && <p className="mt-1 text-gray-600">{group.category}</p>}
-              {group.description && <p className="mt-2 text-gray-700">{group.description}</p>}
+              <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">{cleanDisplayName(group.name)}</h1>
+              {group.category && <p className="mt-1 text-sm text-muted-foreground">{group.category}</p>}
+              {group.description && <p className="mt-2 text-muted-foreground">{group.description}</p>}
             </div>
             <div className="flex gap-2">
               {isAdmin && <InviteMemberDialog groupId={group.id} inviteCode={group.invite_code} />}
@@ -108,15 +109,20 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
                     {assignments.map((assignment) => (
                       <AssignmentCard
                         key={assignment.id}
-                        assignment={{ ...assignment, groups: { id: group.id, name: group.name } }}
+                        assignment={{ ...assignment, groups: { id: group.id, name: cleanDisplayName(group.name) } }}
                       />
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <p className="text-gray-600">No assignments yet</p>
-                    <p className="mt-1 text-sm text-gray-500">Create an assignment to get started</p>
-                  </div>
+                  <EmptyState
+                    icon={ClipboardList}
+                    title="No assignments yet"
+                    description="Create an assignment to get started."
+                    action={
+                      <CreateAssignmentWizard groupId={group.id} />
+                    }
+                    variant="card"
+                  />
                 )}
               </CardContent>
             </Card>
@@ -149,7 +155,7 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
                         <div>
                           <p className="text-sm font-medium">{member.profiles.full_name || "Unknown"}</p>
                           <p className="text-xs text-muted-foreground">
-                            Level {member.profiles.level} • {member.profiles.points} pts
+                            Level <span className="font-num">{member.profiles.level}</span> • <span className="font-num">{member.profiles.points}</span> pts
                           </p>
                         </div>
                       </div>
@@ -183,7 +189,7 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
             {leaderboardMembers && <Leaderboard members={leaderboardMembers} currentUserId={user.id} />}
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
     </div>
   )
 }

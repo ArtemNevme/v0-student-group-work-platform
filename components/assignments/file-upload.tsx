@@ -84,12 +84,12 @@ export function FileUpload({ assignmentId, files: initialFiles }: FileUploadProp
     }
   }
 
-  const handleDelete = async (fileId: string, fileUrl: string) => {
+  const handleDelete = async (fileId: string) => {
     try {
       const response = await fetch("/api/delete-file", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId, fileUrl }),
+        body: JSON.stringify({ fileId }),
       })
 
       if (!response.ok) {
@@ -144,21 +144,21 @@ export function FileUpload({ assignmentId, files: initialFiles }: FileUploadProp
       </CardHeader>
       <CardContent>
         {files.length === 0 ? (
-          <div className="py-8 text-center text-sm text-gray-500">
-            <File className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            <File className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" strokeWidth={1.75} />
             <p>No files uploaded yet</p>
             <p className="mt-1 text-xs">Upload assignment files for AI analysis</p>
           </div>
         ) : (
           <div className="space-y-2">
             {files.map((file) => (
-              <div key={file.id} className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50">
+              <div key={file.id} className="flex items-center justify-between rounded-control border border-border p-3 transition-colors duration-150 hover:bg-secondary">
                 <div className="flex items-center gap-3">
-                  <File className="h-5 w-5 text-gray-400" />
+                  <File className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{file.file_name}</p>
-                    <p className="text-xs text-gray-500">
-                      {formatFileSize(file.file_size)} • Uploaded by {file.profiles.full_name}
+                    <p className="text-sm font-medium text-foreground">{file.file_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-num">{formatFileSize(file.file_size)}</span> • Uploaded by {file.profiles.full_name}
                     </p>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export function FileUpload({ assignmentId, files: initialFiles }: FileUploadProp
                       <Download className="h-4 w-4" />
                     </a>
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(file.id, file.file_url)}>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(file.id)}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -176,7 +176,7 @@ export function FileUpload({ assignmentId, files: initialFiles }: FileUploadProp
             ))}
           </div>
         )}
-        <p className="mt-4 text-xs text-gray-500">Supported formats: PDF, DOC, DOCX, TXT, MD, JPG, PNG (max 10MB)</p>
+        <p className="mt-4 text-xs text-muted-foreground">Supported formats: PDF, DOC, DOCX, TXT, MD, JPG, PNG (max 10MB)</p>
       </CardContent>
     </Card>
   )

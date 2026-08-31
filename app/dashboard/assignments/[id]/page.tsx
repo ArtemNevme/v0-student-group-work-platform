@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress"
 import Link from "next/link"
 import { ArrowLeft, Calendar, Trash2, Clock, Users, CheckCircle2, AlertCircle } from "lucide-react"
 import { format } from "date-fns"
+import { cleanDisplayName } from "@/lib/utils"
 import { AddToTeamDialog } from "@/components/assignments/add-to-team-dialog"
 
 export default async function AssignmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -42,12 +43,12 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
 
   if (result.error || !result.assignment) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex items-center justify-center py-24">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Assignment not found</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">{result.error || "This assignment does not exist"}</p>
+            <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" strokeWidth={1.75} />
+            <h2 className="font-display text-xl font-semibold tracking-[-0.01em] text-foreground">Assignment not found</h2>
+            <p className="mt-2 text-muted-foreground">{result.error || "This assignment does not exist"}</p>
             <Button asChild className="mt-6">
               <Link href="/dashboard/my-tasks">Back to My Tasks</Link>
             </Button>
@@ -61,45 +62,45 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
 
   if (!assignment.group_id || !assignment.groups) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="flex items-center justify-center py-24 px-6">
         <Card className="w-full max-w-2xl">
           <CardContent className="pt-6">
             <div className="text-center mb-6">
-              <div className="mx-auto h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="mx-auto h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-accent-fg" strokeWidth={1.75} />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{assignment.title}</h2>
-              <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground mb-2">{assignment.title}</h2>
+              <Badge className="bg-secondary text-secondary-foreground">
                 From Google Classroom
               </Badge>
             </div>
 
             {assignment.description && (
-              <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <p className="text-gray-700 dark:text-gray-300">{assignment.description}</p>
+              <div className="mb-6 p-4 bg-secondary rounded-card">
+                <p className="text-foreground">{assignment.description}</p>
               </div>
             )}
 
             {assignment.deadline && (
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-6">
-                <Calendar className="h-4 w-4" />
-                Due: {format(new Date(assignment.deadline), "MMM d, yyyy 'at' h:mm a")}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                <Calendar className="h-4 w-4" strokeWidth={1.75} />
+                Due: <span className="font-num">{format(new Date(assignment.deadline), "MMM d, yyyy 'at' h:mm a")}</span>
               </div>
             )}
 
-            <div className="border-t dark:border-gray-800 pt-6">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Add to Study Team</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <div className="border-t border-border pt-6">
+              <h3 className="font-semibold text-foreground mb-3">Add to Study Team</h3>
+              <p className="text-sm text-muted-foreground mb-4">
                 This assignment is from Google Classroom and needs to be added to a Study Team to collaborate with
                 classmates.
               </p>
               <AddToTeamDialog assignment={assignment} />
             </div>
 
-            <div className="mt-6 pt-6 border-t dark:border-gray-800">
+            <div className="mt-6 pt-6 border-t border-border">
               <Button asChild variant="ghost" className="w-full">
                 <Link href="/dashboard/subjects">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-2 h-4 w-4" strokeWidth={1.75} />
                   Back to Subjects
                 </Link>
               </Button>
@@ -112,12 +113,12 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
 
   if (!assignment.profiles) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex items-center justify-center py-24">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Invalid assignment data</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">This assignment has missing or corrupted data</p>
+            <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" strokeWidth={1.75} />
+            <h2 className="font-display text-xl font-semibold tracking-[-0.01em] text-foreground">Invalid assignment data</h2>
+            <p className="mt-2 text-muted-foreground">This assignment has missing or corrupted data</p>
             <Button asChild className="mt-6">
               <Link href="/dashboard/my-tasks">Back to My Tasks</Link>
             </Button>
@@ -131,17 +132,17 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
 
   const statusConfig = {
     not_started: {
-      color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+      color: "bg-secondary text-muted-foreground",
       label: "Not Started",
       icon: Clock,
     },
     in_progress: {
-      color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+      color: "bg-accent-soft text-accent-fg",
       label: "In Progress",
       icon: Clock,
     },
     completed: {
-      color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+      color: "bg-success/10 text-success",
       label: "Completed",
       icon: CheckCircle2,
     },
@@ -177,62 +178,56 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
   const links = linksResult.links || []
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="sticky top-0 z-40 border-b bg-white/95 backdrop-blur-sm dark:bg-gray-900/95">
-        <div className="container mx-auto px-6 py-3">
-          <div className="flex items-center justify-between">
-            <Link
-              href={`/dashboard/groups/${assignment.groups.id}`}
-              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {assignment.groups.name}
-            </Link>
-            <div className="flex items-center gap-2">
-              {assignment.status !== "completed" && (
-                <CompleteAssignmentButton assignmentId={assignment.id} status={assignment.status} />
-              )}
-              <EditAssignmentDialog assignment={assignment} />
-              {isCreator && (
-                <form action={deleteAssignmentAndRedirect.bind(null, id)}>
-                  <Button
-                    type="submit"
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </form>
-              )}
-            </div>
-          </div>
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+      <div className="mb-4 flex items-center justify-between">
+        <Link
+          href={`/dashboard/groups/${assignment.groups.id}`}
+          className="inline-flex items-center text-sm text-muted-foreground transition-colors duration-150 hover:text-accent-fg"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" strokeWidth={1.75} />
+          {cleanDisplayName(assignment.groups.name)}
+        </Link>
+        <div className="flex items-center gap-2">
+          {assignment.status !== "completed" && (
+            <CompleteAssignmentButton assignmentId={assignment.id} status={assignment.status} />
+          )}
+          <EditAssignmentDialog assignment={assignment} />
+          {isCreator && (
+            <form action={async () => {
+              "use server"
+              await deleteAssignmentAndRedirect(id)
+            }}>
+              <Button type="submit" variant="ghost" size="sm" className="text-danger hover:text-danger">
+                <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+              </Button>
+            </form>
+          )}
         </div>
-      </header>
+      </div>
 
-      <main className="container mx-auto px-6 py-6">
+      <div>
         <Card className="mb-6 overflow-hidden">
-          <div className={`h-2 ${assignment.status === "completed" ? "bg-green-500" : "bg-blue-500"}`} />
+          <div className={`h-1.5 ${assignment.status === "completed" ? "bg-success" : "bg-primary"}`} />
           <CardContent className="pt-6">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-3 mb-3">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">{assignment.title}</h1>
+                  <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground truncate">{assignment.title}</h1>
                   <Badge className={`${currentStatus.color} shrink-0`}>
-                    <StatusIcon className="h-3 w-3 mr-1" />
+                    <StatusIcon className="h-3 w-3 mr-1" strokeWidth={1.75} />
                     {currentStatus.label}
                   </Badge>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    {assignment.groups.name}
+                    <Users className="h-4 w-4" strokeWidth={1.75} />
+                    {cleanDisplayName(assignment.groups.name)}
                   </span>
                   <span className="flex items-center gap-1">Created by {assignment.profiles.full_name}</span>
                   <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {format(deadline, "MMM d, yyyy 'at' h:mm a")}
+                    <Calendar className="h-4 w-4" strokeWidth={1.75} />
+                    <span className="font-num">{format(deadline, "MMM d, yyyy 'at' h:mm a")}</span>
                   </span>
                 </div>
               </div>
@@ -240,18 +235,18 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
               {hasTasks && (
                 <div className="lg:w-48 shrink-0">
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-600 dark:text-gray-400">Progress</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{progressPercent}%</span>
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="font-num font-medium text-foreground">{progressPercent}%</span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {completedTasks} of {totalTasks} tasks completed
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <span className="font-num">{completedTasks}</span> of <span className="font-num">{totalTasks}</span> tasks completed
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="mt-4 pt-4 border-t dark:border-gray-800">
+            <div className="mt-4 pt-4 border-t border-border">
               <WorkLinkField assignmentId={assignment.id} initialWorkLink={assignment.work_link} />
             </div>
           </CardContent>
@@ -265,7 +260,7 @@ export default async function AssignmentDetailPage({ params }: { params: Promise
           members={formattedMembers}
           currentUserId={user.id}
         />
-      </main>
+      </div>
     </div>
   )
 }

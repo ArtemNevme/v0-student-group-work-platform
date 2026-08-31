@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import { Calendar, Clock, CalendarDays, CalendarRange } from "lucide-react"
 
 const DATE_FILTERS = [
@@ -111,8 +110,8 @@ export function DateFilter() {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-4 shadow-sm">
-      <span className="text-sm font-medium text-gray-700">Filter by deadline:</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-card border border-border bg-card p-4">
+      <span className="text-sm font-medium text-foreground">Filter by deadline:</span>
       {DATE_FILTERS.map((filter) => {
         const Icon = filter.icon
         return (
@@ -121,9 +120,9 @@ export function DateFilter() {
             variant={selectedFilter === filter.value ? "default" : "outline"}
             size="sm"
             onClick={() => handleFilterChange(filter.value)}
-            className={cn("gap-2 transition-all", selectedFilter === filter.value && "shadow-md")}
+            className="gap-2 transition-colors duration-150"
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-4 w-4" strokeWidth={1.75} />
             {filter.label}
           </Button>
         )

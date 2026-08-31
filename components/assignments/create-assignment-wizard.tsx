@@ -55,25 +55,25 @@ const PRIORITIES: { value: Priority; label: string; description: string; color: 
     value: "low",
     label: "Low",
     description: "No rush, flexible timeline",
-    color: "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200",
+    color: "bg-secondary text-muted-foreground hover:bg-secondary/70",
   },
   {
     value: "medium",
     label: "Medium",
     description: "Standard priority",
-    color: "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100",
+    color: "bg-secondary text-foreground hover:bg-secondary/70",
   },
   {
     value: "high",
     label: "High",
     description: "Important, needs attention",
-    color: "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100",
+    color: "bg-accent-soft text-accent-fg hover:bg-accent-soft/80",
   },
   {
     value: "urgent",
     label: "Urgent",
     description: "Critical deadline",
-    color: "bg-red-50 border-red-200 text-red-700 hover:bg-red-100",
+    color: "bg-danger/10 text-danger hover:bg-danger/20",
   },
 ]
 
@@ -274,7 +274,7 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
             ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            Step {step} of {totalSteps}
+            Step <span className="font-num">{step}</span> of <span className="font-num">{totalSteps}</span>
           </p>
         </DialogHeader>
 
@@ -322,10 +322,10 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
                       <Flag
                         className={cn(
                           "h-4 w-4",
-                          priority.value === "urgent" && "text-red-500",
-                          priority.value === "high" && "text-amber-500",
-                          priority.value === "medium" && "text-blue-500",
-                          priority.value === "low" && "text-slate-400",
+                          priority.value === "urgent" && "text-danger",
+                          priority.value === "high" && "text-accent-fg",
+                          priority.value === "medium" && "text-muted-foreground",
+                          priority.value === "low" && "text-muted-foreground/60",
                         )}
                       />
                       <div>
@@ -484,7 +484,7 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline truncate max-w-[400px]"
+                        className="text-sm text-accent-fg hover:underline truncate max-w-[400px]"
                       >
                         {link}
                       </a>
@@ -520,13 +520,13 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
                       : "border-muted hover:border-muted-foreground/50",
                   )}
                 >
-                  <div className="rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 p-2 text-white">
-                    <Sparkles className="h-5 w-5" />
+                  <div className="rounded-control bg-accent-soft p-2">
+                    <Sparkles className="h-5 w-5 text-accent-fg" strokeWidth={1.75} />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium">AI Auto-Plan</p>
-                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs text-violet-700">
+                      <span className="rounded-chip bg-accent-soft px-2 py-0.5 text-xs text-accent-fg">
                         Recommended
                       </span>
                     </div>
@@ -546,8 +546,8 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
                       : "border-muted hover:border-muted-foreground/50",
                   )}
                 >
-                  <div className="rounded-lg bg-slate-100 p-2">
-                    <ListTodo className="h-5 w-5" />
+                  <div className="rounded-control bg-secondary p-2">
+                    <ListTodo className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">Manual Planning</p>
@@ -567,8 +567,8 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
                       : "border-muted hover:border-muted-foreground/50",
                   )}
                 >
-                  <div className="rounded-lg bg-slate-100 p-2">
-                    <ArrowRight className="h-5 w-5" />
+                  <div className="rounded-control bg-secondary p-2">
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">Plan Later</p>
@@ -617,8 +617,8 @@ export function CreateAssignmentWizard({ groupId, trigger }: CreateAssignmentWiz
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-800">
-            <AlertCircle className="h-4 w-4" />
+          <div className="flex items-center gap-2 rounded-control bg-danger/10 p-3 text-sm text-danger">
+            <AlertCircle className="h-4 w-4" strokeWidth={1.75} />
             {error}
           </div>
         )}

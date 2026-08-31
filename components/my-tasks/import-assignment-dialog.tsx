@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Users, Loader2, CheckCircle2, ExternalLink } from "lucide-react"
 import { importToStudySyncByGoogleId } from "@/lib/actions/google-classroom"
-import { cn } from "@/lib/utils"
+import { cn, cleanDisplayName } from "@/lib/utils"
 
 interface Group {
   id: string
@@ -120,14 +120,14 @@ export function ImportAssignmentDialog({ open, onOpenChange, assignment, userGro
                       key={group.id}
                       className={cn(
                         "flex items-center space-x-3 rounded-lg border p-3 cursor-pointer transition-colors",
-                        selectedGroup === group.id ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50",
+                        selectedGroup === group.id ? "border-primary bg-accent-soft" : "border-border hover:bg-secondary",
                       )}
                       onClick={() => setSelectedGroup(group.id)}
                     >
                       <RadioGroupItem value={group.id} id={group.id} />
                       <Label htmlFor={group.id} className="flex-1 cursor-pointer flex items-center gap-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        {group.name}
+                        {cleanDisplayName(group.name)}
                       </Label>
                     </div>
                   ))}
@@ -160,8 +160,8 @@ export function ImportAssignmentDialog({ open, onOpenChange, assignment, userGro
         ) : importResult.success ? (
           <>
             <DialogHeader>
-              <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              <div className="mx-auto w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-4">
+                <CheckCircle2 className="h-6 w-6 text-success" strokeWidth={1.75} />
               </div>
               <DialogTitle className="text-center">Successfully Imported!</DialogTitle>
               <DialogDescription className="text-center">
@@ -170,7 +170,7 @@ export function ImportAssignmentDialog({ open, onOpenChange, assignment, userGro
             </DialogHeader>
 
             <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-              <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto bg-transparent">
+              <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
                 Close
               </Button>
               <Button onClick={handleGoToAssignment} className="w-full sm:w-auto">

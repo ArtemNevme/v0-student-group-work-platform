@@ -71,9 +71,9 @@ export function AvatarUpload({ avatarUrl, fullName }: AvatarUploadProps) {
 
   return (
     <div className="relative">
-      <Avatar className="h-28 w-28 border-4 border-white shadow-lg">
+      <Avatar className="h-28 w-28 border-4 border-card">
         <AvatarImage src={previewUrl || undefined} alt={fullName || "User"} />
-        <AvatarFallback className="text-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <AvatarFallback className="text-3xl bg-accent-soft text-accent-fg">
           {fullName?.[0]?.toUpperCase() || "U"}
         </AvatarFallback>
       </Avatar>
@@ -83,11 +83,15 @@ export function AvatarUpload({ avatarUrl, fullName }: AvatarUploadProps) {
       <Button
         size="icon"
         variant="secondary"
-        className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
+        className="absolute bottom-0 right-0 h-8 w-8 rounded-full border border-border"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
       >
-        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+        {uploading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Camera className="h-4 w-4" strokeWidth={1.75} />
+        )}
       </Button>
     </div>
   )

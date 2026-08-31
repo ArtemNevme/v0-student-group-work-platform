@@ -15,41 +15,41 @@ export function PriorityBadge({ priority, showLabel = true, size = "md" }: Prior
         return {
           label: "Urgent",
           icon: AlertTriangle,
-          bgColor: "bg-red-100 dark:bg-red-900/30",
-          textColor: "text-red-700 dark:text-red-400",
-          iconColor: "text-red-500",
+          bgColor: "bg-danger/10",
+          textColor: "text-danger",
+          iconColor: "text-danger",
         }
       case "high":
         return {
           label: "High",
           icon: ArrowUp,
-          bgColor: "bg-orange-100 dark:bg-orange-900/30",
-          textColor: "text-orange-700 dark:text-orange-400",
-          iconColor: "text-orange-500",
+          bgColor: "bg-accent-soft",
+          textColor: "text-accent-fg",
+          iconColor: "text-accent-fg",
         }
       case "medium":
         return {
           label: "Medium",
           icon: Minus,
-          bgColor: "bg-blue-100 dark:bg-blue-900/30",
-          textColor: "text-blue-700 dark:text-blue-400",
-          iconColor: "text-blue-500",
+          bgColor: "bg-secondary",
+          textColor: "text-muted-foreground",
+          iconColor: "text-muted-foreground",
         }
       case "low":
         return {
           label: "Low",
           icon: ArrowDown,
-          bgColor: "bg-gray-100 dark:bg-gray-800",
-          textColor: "text-gray-700 dark:text-gray-400",
-          iconColor: "text-gray-500",
+          bgColor: "bg-secondary",
+          textColor: "text-muted-foreground",
+          iconColor: "text-muted-foreground",
         }
       default:
         return {
           label: "Normal",
           icon: Minus,
-          bgColor: "bg-gray-100 dark:bg-gray-800",
-          textColor: "text-gray-700 dark:text-gray-400",
-          iconColor: "text-gray-500",
+          bgColor: "bg-secondary",
+          textColor: "text-muted-foreground",
+          iconColor: "text-muted-foreground",
         }
     }
   }
@@ -71,9 +71,9 @@ export function PriorityBadge({ priority, showLabel = true, size = "md" }: Prior
 
   return (
     <div
-      className={`inline-flex items-center rounded-full font-medium ${config.bgColor} ${config.textColor} ${sizeClasses[size]}`}
+      className={`inline-flex items-center rounded-chip font-medium ${config.bgColor} ${config.textColor} ${sizeClasses[size]}`}
     >
-      <Icon className={`${iconSizes[size]} ${config.iconColor}`} />
+      <Icon className={`${iconSizes[size]} ${config.iconColor}`} strokeWidth={1.75} />
       {showLabel && <span>{config.label}</span>}
     </div>
   )

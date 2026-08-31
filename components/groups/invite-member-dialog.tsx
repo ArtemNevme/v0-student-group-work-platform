@@ -78,13 +78,13 @@ export function InviteMemberDialog({ groupId, inviteCode }: InviteMemberDialogPr
               <Input id="email" name="email" type="email" placeholder="student@university.edu" required />
             </div>
             {error && (
-              <div className="rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-control bg-danger/10 p-3">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
             {success && (
-              <div className="rounded-md bg-green-50 p-3">
-                <p className="text-sm text-green-800">Invitation sent successfully!</p>
+              <div className="rounded-control bg-success/10 p-3">
+                <p className="text-sm text-success">Invitation sent successfully!</p>
               </div>
             )}
             <Button type="submit" disabled={isLoading} className="w-full">

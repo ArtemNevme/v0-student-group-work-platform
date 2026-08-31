@@ -39,14 +39,14 @@ export function WorkLinkField({ assignmentId, initialWorkLink }: WorkLinkFieldPr
   }
 
   return (
-    <Card className="border-blue-200 bg-blue-50">
+    <Card>
       <CardContent className="pt-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-            <ExternalLink className="h-5 w-5 text-blue-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-control bg-secondary">
+            <ExternalLink className="h-5 w-5 text-accent-fg" strokeWidth={1.75} />
           </div>
           <div className="flex-1">
-            <label className="text-sm font-medium text-gray-700">Work Document Link</label>
+            <label className="text-sm font-medium text-foreground">Work Document Link</label>
             {isEditing ? (
               <div className="mt-1 flex items-center gap-2">
                 <Input
@@ -54,7 +54,7 @@ export function WorkLinkField({ assignmentId, initialWorkLink }: WorkLinkFieldPr
                   value={workLink}
                   onChange={(e) => setWorkLink(e.target.value)}
                   placeholder="https://docs.google.com/document/..."
-                  className="flex-1 bg-white"
+                  className="flex-1"
                 />
                 <Button size="sm" onClick={handleSave} disabled={isSaving}>
                   <Check className="h-4 w-4" />
@@ -71,7 +71,7 @@ export function WorkLinkField({ assignmentId, initialWorkLink }: WorkLinkFieldPr
                       href={workLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 truncate text-sm text-blue-600 hover:underline"
+                      className="flex-1 truncate text-sm text-accent-fg hover:underline"
                     >
                       {workLink}
                     </a>
@@ -81,7 +81,7 @@ export function WorkLinkField({ assignmentId, initialWorkLink }: WorkLinkFieldPr
                   </>
                 ) : (
                   <>
-                    <p className="flex-1 text-sm text-gray-500">No work document link added yet</p>
+                    <p className="flex-1 text-sm text-muted-foreground">No work document link added yet</p>
                     <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}>
                       <Edit2 className="mr-2 h-4 w-4" />
                       Add Link

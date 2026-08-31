@@ -1,10 +1,55 @@
 "use server"
 
+import { del } from "@vercel/blob"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
-export async function getAssignmentFiles(assignmentId: string) {
+async function canAccessAssignment(assignmentId: string) {
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { supabase, user: null, allowed: false }
+  }
+
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("group_id, created_by")
+    .eq("id", assignmentId)
+    .maybeSingle()
+
+  if (!assignment) {
+    return { supabase, user, allowed: false }
+  }
+
+  if (assignment.created_by === user.id) {
+    return { supabase, user, allowed: true }
+  }
+
+  if (!assignment.group_id) {
+    return { supabase, user, allowed: false }
+  }
+
+  const { data: membership } = await supabase
+    .from("group_members")
+    .select("id")
+    .eq("group_id", assignment.group_id)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  return { supabase, user, allowed: Boolean(membership) }
+}
+
+export async function getAssignmentFiles(assignmentId: string) {
+  const { supabase, user, allowed } = await canAccessAssignment(assignmentId)
+  if (!user) {
+    return { error: "Not authenticated", files: [] }
+  }
+  if (!allowed) {
+    return { error: "Not authorized", files: [] }
+  }
 
   const { data, error } = await supabase
     .from("assignment_files")
@@ -37,7 +82,13 @@ export async function getAssignmentFiles(assignmentId: string) {
 }
 
 export async function getAssignmentLinks(assignmentId: string) {
-  const supabase = await createClient()
+  const { supabase, user, allowed } = await canAccessAssignment(assignmentId)
+  if (!user) {
+    return { error: "Not authenticated", links: [] }
+  }
+  if (!allowed) {
+    return { error: "Not authorized", links: [] }
+  }
 
   const { data, error } = await supabase
     .from("assignment_links")
@@ -76,13 +127,27 @@ export async function addLink(
   description?: string,
   category?: string,
 ) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user, allowed } = await canAccessAssignment(assignmentId)
   if (!user) {
     return { error: "Not authenticated" }
+  }
+  if (!allowed) {
+    return { error: "Not authorized" }
+  }
+
+  if (!title.trim()) {
+    return { error: "Title is required" }
+  }
+
+  let normalizedUrl: string
+  try {
+    const parsed = new URL(url)
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return { error: "Only HTTP and HTTPS links are allowed" }
+    }
+    normalizedUrl = parsed.toString()
+  } catch {
+    return { error: "Invalid URL" }
   }
 
   const { data, error } = await supabase
@@ -91,7 +156,7 @@ export async function addLink(
       assignment_id: assignmentId,
       added_by: user.id,
       title,
-      url,
+      url: normalizedUrl,
       description,
       category: category || "other",
     })
@@ -134,6 +199,24 @@ export async function deleteFile(fileId: string) {
   } = await supabase.auth.getUser()
   if (!user) {
     return { error: "Not authenticated" }
+  }
+
+  const { data: file, error: fetchError } = await supabase
+    .from("assignment_files")
+    .select("id, file_url")
+    .eq("id", fileId)
+    .eq("uploaded_by", user.id)
+    .maybeSingle()
+
+  if (fetchError || !file) {
+    return { error: "File not found" }
+  }
+
+  try {
+    await del(file.file_url)
+  } catch (blobError) {
+    console.error("Failed to delete blob:", blobError)
+    // Continue to delete metadata so we don't leave orphaned rows
   }
 
   const { error } = await supabase.from("assignment_files").delete().eq("id", fileId).eq("uploaded_by", user.id)

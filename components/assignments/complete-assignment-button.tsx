@@ -29,8 +29,8 @@ export function CompleteAssignmentButton({ assignmentId, status }: CompleteAssig
 
   if (status === "completed") {
     return (
-      <div className="flex items-center gap-2 text-green-600">
-        <CheckCircle2 className="h-5 w-5" />
+      <div className="flex items-center gap-2 text-success">
+        <CheckCircle2 className="h-5 w-5" strokeWidth={1.75} />
         <span className="font-medium">Completed</span>
       </div>
     )
@@ -53,8 +53,8 @@ export function CompleteAssignmentButton({ assignmentId, status }: CompleteAssig
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 bg-transparent">
-          <CheckCircle2 className="mr-2 h-4 w-4" />
+        <Button variant="outline" className="border-success/40 text-success hover:bg-success/10 hover:text-success bg-transparent">
+          <CheckCircle2 className="mr-2 h-4 w-4" strokeWidth={1.75} />
           Mark as Completed
         </Button>
       </AlertDialogTrigger>
@@ -68,7 +68,7 @@ export function CompleteAssignmentButton({ assignmentId, status }: CompleteAssig
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleComplete} disabled={completing} className="bg-green-600 hover:bg-green-700">
+          <AlertDialogAction onClick={handleComplete} disabled={completing}>
             {completing ? "Completing..." : "Yes, Complete"}
           </AlertDialogAction>
         </AlertDialogFooter>

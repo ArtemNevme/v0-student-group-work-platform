@@ -1,5 +1,5 @@
 "use client"
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -31,6 +31,7 @@ import { completeAssignment } from "@/lib/actions/assignments"
 import { toast } from "sonner"
 import { ImportAssignmentDialog } from "@/components/my-tasks/import-assignment-dialog"
 import { QuickCreateAssignmentDialog } from "@/components/my-tasks/quick-create-assignment-dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import type { TaskItem } from "./page"
 
 interface MyTasksClientProps {
@@ -50,8 +51,8 @@ export function MyTasksClient({
   userGroups,
   needsAutoSync,
 }: MyTasksClientProps) {
-  const tasks = items || []
-  const groups = userGroups || []
+  const tasks = items
+  const groups = userGroups
 
   const [sourceFilter, setSourceFilter] = useState<"all" | "studysync" | "google">("all")
   const [activeTab, setActiveTab] = useState("all")
@@ -63,6 +64,7 @@ export function MyTasksClient({
   // Sync state
   const [isSyncing, setIsSyncing] = useState(false)
   const [authExpired, setAuthExpired] = useState(false)
+  const hasAttemptedAutoSync = useRef(false)
 
   // Import dialog state
   const [importDialogOpen, setImportDialogOpen] = useState(false)
@@ -74,13 +76,7 @@ export function MyTasksClient({
     courseName?: string
   } | null>(null)
 
-  useEffect(() => {
-    if (isGoogleConnected && needsAutoSync && !isSyncing && !authExpired) {
-      performSync()
-    }
-  }, [isGoogleConnected, needsAutoSync])
-
-  const performSync = async () => {
+  const performSync = useCallback(async () => {
     setIsSyncing(true)
 
     try {
@@ -109,7 +105,19 @@ export function MyTasksClient({
     } finally {
       setIsSyncing(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!needsAutoSync) {
+      hasAttemptedAutoSync.current = false
+      return
+    }
+
+    if (isGoogleConnected && !hasAttemptedAutoSync.current) {
+      hasAttemptedAutoSync.current = true
+      void performSync()
+    }
+  }, [isGoogleConnected, needsAutoSync, performSync])
 
   const handleComplete = async (task: TaskItem) => {
     if (task.type !== "studysync" || !task.assignmentId) {
@@ -252,6 +260,60 @@ export function MyTasksClient({
     return Array.from(uniqueSubjects).sort()
   }, [tasks, sourceFilter])
 
+  const emptyState = useMemo(() => {
+    if (activeTab === "done") {
+      return {
+        icon: CheckCircle2,
+        title: "No completed tasks yet",
+        description: "Complete some tasks to see them here.",
+        action: null,
+      }
+    }
+
+    if (sourceFilter === "google") {
+      return {
+        icon: GraduationCap,
+        title: "No Google Classroom assignments",
+        description: "Connect Google Classroom to sync your assignments.",
+        action: !isGoogleConnected
+          ? { label: "Connect Google Classroom", href: "/dashboard/google-classroom" }
+          : null,
+      }
+    }
+
+    if (sourceFilter === "studysync") {
+      return {
+        icon: Users,
+        title: "No StudySync assignments",
+        description:
+          groups.length > 0
+            ? "Create a new assignment to get started."
+            : "Join or create a group first to get started.",
+        action:
+          groups.length > 0 ? (
+            <QuickCreateAssignmentDialog groups={groups}>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
+                Create Assignment
+              </Button>
+            </QuickCreateAssignmentDialog>
+          ) : (
+            { label: "Join or create a group", href: "/dashboard/groups" }
+          ),
+      }
+    }
+
+    return {
+      icon: CheckCircle2,
+      title: "All caught up!",
+      description: "No pending tasks right now.",
+      action:
+        groups.length === 0
+          ? { label: "Join or create a group first", href: "/dashboard/groups" }
+          : null,
+    }
+  }, [activeTab, sourceFilter, isGoogleConnected, groups])
+
   const allCount = tasks.filter((task) => !task.isCompleted).length
   const overdueCount = tasks.filter(
     (task) => task.deadline && new Date(task.deadline) < new Date() && !task.isCompleted,
@@ -273,10 +335,14 @@ export function MyTasksClient({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tasks</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {allCount} active task{allCount !== 1 ? "s" : ""}
-            {overdueCount > 0 && <span className="ml-1 text-red-600">({overdueCount} overdue)</span>}
+          <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">Tasks</h1>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-num">{allCount}</span> active task{allCount !== 1 ? "s" : ""}
+            {overdueCount > 0 && (
+              <span className="ml-1 text-danger">
+                (<span className="font-num">{overdueCount}</span> overdue)
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -294,9 +360,9 @@ export function MyTasksClient({
               size="sm"
               onClick={performSync}
               disabled={isSyncing}
-              className="gap-2 bg-transparent"
+              className="gap-2"
             >
-              <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+              <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} strokeWidth={1.75} />
               {isSyncing ? "Syncing..." : "Sync"}
             </Button>
           )}
@@ -305,16 +371,16 @@ export function MyTasksClient({
 
       {/* Auth expired alert */}
       {authExpired && (
-        <Alert variant="destructive" className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="text-amber-800 dark:text-amber-200">Google Classroom Disconnected</AlertTitle>
-          <AlertDescription className="text-amber-700 dark:text-amber-300">
+        <Alert className="border-danger/30 bg-danger/10">
+          <AlertTriangle className="h-4 w-4 text-danger" strokeWidth={1.75} />
+          <AlertTitle className="text-danger">Google Classroom Disconnected</AlertTitle>
+          <AlertDescription className="text-foreground">
             <p className="mb-3">
               Your Google Classroom authorization has expired. Please reconnect to continue syncing assignments.
             </p>
-            <Button asChild size="sm" variant="outline" className="gap-2 bg-transparent">
+            <Button asChild size="sm" variant="outline" className="gap-2">
               <Link href="/dashboard/google-classroom">
-                <Link2 className="h-4 w-4" />
+                <Link2 className="h-4 w-4" strokeWidth={1.75} />
                 Reconnect Google Classroom
               </Link>
             </Button>
@@ -324,97 +390,86 @@ export function MyTasksClient({
 
       {/* Auto-sync indicator */}
       {isSyncing && (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <RefreshCw className="h-4 w-4 animate-spin" />
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <RefreshCw className="h-4 w-4 animate-spin" strokeWidth={1.75} />
           Syncing with Google Classroom...
         </div>
       )}
 
       {/* Archived notice */}
       {archivedCount > 0 && (
-        <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-          <Archive className="h-4 w-4" />
-          {archivedCount} old task{archivedCount !== 1 ? "s" : ""} hidden (overdue by more than 60 days)
+        <div className="flex items-center gap-2 rounded-card border border-border bg-secondary px-4 py-3 text-sm text-muted-foreground">
+          <Archive className="h-4 w-4" strokeWidth={1.75} />
+          <span>
+            <span className="font-num">{archivedCount}</span> old task{archivedCount !== 1 ? "s" : ""} hidden (overdue
+            by more than 60 days)
+          </span>
         </div>
       )}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-fit">
+        <div className="flex items-center gap-1 p-1 bg-secondary rounded-control w-fit">
           <button
             onClick={() => setSourceFilter("all")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+              "flex items-center gap-2 px-3 py-1.5 rounded-chip text-sm font-medium transition-colors duration-150",
               sourceFilter === "all"
-                ? "bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-gray-100"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200",
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <Layers className="h-4 w-4" />
+            <Layers className="h-4 w-4" strokeWidth={1.75} />
             All Sources
-            <Badge variant="secondary" className="ml-1 text-xs">
-              {allCount}
-            </Badge>
+            <span className="font-num text-xs text-muted-foreground">{allCount}</span>
           </button>
           <button
             onClick={() => setSourceFilter("studysync")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+              "flex items-center gap-2 px-3 py-1.5 rounded-chip text-sm font-medium transition-colors duration-150",
               sourceFilter === "studysync"
-                ? "bg-blue-500 text-white shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200",
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <Users className="h-4 w-4" />
+            <Users className="h-4 w-4" strokeWidth={1.75} />
             StudySync
-            <Badge
-              variant="secondary"
-              className={cn("ml-1 text-xs", sourceFilter === "studysync" ? "bg-blue-400 text-white" : "")}
-            >
-              {studySyncCount}
-            </Badge>
+            <span className="font-num text-xs text-muted-foreground">{studySyncCount}</span>
           </button>
           <button
             onClick={() => setSourceFilter("google")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+              "flex items-center gap-2 px-3 py-1.5 rounded-chip text-sm font-medium transition-colors duration-150",
               sourceFilter === "google"
-                ? "bg-green-500 text-white shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200",
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <GraduationCap className="h-4 w-4" />
+            <GraduationCap className="h-4 w-4" strokeWidth={1.75} />
             Google Classroom
-            <Badge
-              variant="secondary"
-              className={cn("ml-1 text-xs", sourceFilter === "google" ? "bg-green-400 text-white" : "")}
-            >
-              {googleCount}
-            </Badge>
+            <span className="font-num text-xs text-muted-foreground">{googleCount}</span>
           </button>
         </div>
       </div>
 
       {/* Status Tabs */}
-      <div className="flex gap-1 border-b dark:border-gray-700">
+      <div className="flex gap-1 border-b border-border">
         {tabsList.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-150",
               activeTab === tab.value
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200",
+                ? "border-b-2 border-primary text-accent-fg"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <tab.icon className="h-4 w-4" />
+            <tab.icon className="h-4 w-4" strokeWidth={1.75} />
             {tab.label}
             <span
               className={cn(
-                "rounded-full px-2 py-0.5 text-xs",
-                activeTab === tab.value
-                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                  : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400",
+                "rounded-chip px-2 py-0.5 text-xs font-num",
+                activeTab === tab.value ? "bg-accent-soft text-accent-fg" : "bg-secondary text-muted-foreground",
               )}
             >
               {tab.count}
@@ -426,7 +481,7 @@ export function MyTasksClient({
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
           <Input
             placeholder="Search tasks..."
             value={searchQuery}
@@ -448,7 +503,7 @@ export function MyTasksClient({
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as "subject" | "deadline")}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -459,28 +514,21 @@ export function MyTasksClient({
       </div>
 
       {sourceFilter !== "all" && (
-        <div
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-4 py-3 text-sm",
-            sourceFilter === "studysync"
-              ? "bg-blue-50 border border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200"
-              : "bg-green-50 border border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200",
-          )}
-        >
+        <div className="flex items-center gap-3 rounded-card border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
           {sourceFilter === "studysync" ? (
             <>
-              <Users className="h-5 w-5" />
+              <Users className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
               <div>
-                <span className="font-medium">StudySync Assignments</span>
-                <span className="ml-2 opacity-75">— Created by you or your group members on this platform</span>
+                <span className="font-medium text-foreground">StudySync Assignments</span>
+                <span className="ml-2">— Created by you or your group members on this platform</span>
               </div>
             </>
           ) : (
             <>
-              <GraduationCap className="h-5 w-5" />
+              <GraduationCap className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
               <div>
-                <span className="font-medium">Google Classroom Assignments</span>
-                <span className="ml-2 opacity-75">— Synced from your Google Classroom courses</span>
+                <span className="font-medium text-foreground">Google Classroom Assignments</span>
+                <span className="ml-2">— Synced from your Google Classroom courses</span>
               </div>
             </>
           )}
@@ -489,65 +537,13 @@ export function MyTasksClient({
 
       {/* Empty state with create button */}
       {filteredTasks.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div
-              className={cn(
-                "rounded-full p-3 mb-4",
-                sourceFilter === "google"
-                  ? "bg-green-100 dark:bg-green-900"
-                  : sourceFilter === "studysync"
-                    ? "bg-blue-100 dark:bg-blue-900"
-                    : "bg-green-100 dark:bg-green-900",
-              )}
-            >
-              {sourceFilter === "google" ? (
-                <GraduationCap className="h-8 w-8 text-green-600 dark:text-green-400" />
-              ) : sourceFilter === "studysync" ? (
-                <Users className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              ) : (
-                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-              )}
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-              {activeTab === "done"
-                ? "No completed tasks yet"
-                : sourceFilter === "google"
-                  ? "No Google Classroom assignments"
-                  : sourceFilter === "studysync"
-                    ? "No StudySync assignments"
-                    : "All caught up!"}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center max-w-md">
-              {activeTab === "done"
-                ? "Complete some tasks to see them here"
-                : sourceFilter === "google"
-                  ? "Connect Google Classroom to sync your assignments"
-                  : sourceFilter === "studysync"
-                    ? "Create a new assignment to get started"
-                    : "No pending tasks right now"}
-            </p>
-            {sourceFilter === "google" && !isGoogleConnected ? (
-              <Button variant="outline" asChild className="bg-transparent">
-                <Link href="/dashboard/google-classroom" className="gap-2">
-                  <GraduationCap className="h-4 w-4" />
-                  Connect Google Classroom
-                </Link>
-              </Button>
-            ) : sourceFilter === "studysync" && groups.length > 0 ? (
-              <QuickCreateAssignmentDialog groups={groups}>
-                <Button variant="outline" className="gap-2 bg-transparent">
-                  <Plus className="h-4 w-4" />
-                  Create Assignment
-                </Button>
-              </QuickCreateAssignmentDialog>
-            ) : groups.length === 0 && sourceFilter !== "google" ? (
-              <Button variant="outline" asChild className="bg-transparent">
-                <Link href="/dashboard/groups">Join or create a group first</Link>
-              </Button>
-            ) : null}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={emptyState.icon}
+          title={emptyState.title}
+          description={emptyState.description}
+          action={emptyState.action}
+          variant="card"
+        />
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedTasks).map(([subjectName, subjectTasks]) => {
@@ -562,40 +558,33 @@ export function MyTasksClient({
                 {/* Subject Header */}
                 <button
                   onClick={() => toggleSection(subjectName)}
-                  className="flex w-full items-center justify-between rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex w-full items-center justify-between rounded-control p-2 transition-colors duration-150 hover:bg-secondary"
                 >
                   <div className="flex items-center gap-2">
                     {isGoogle ? (
-                      <GraduationCap className="h-5 w-5 text-green-600" />
+                      <GraduationCap className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                     ) : (
-                      <Users className="h-5 w-5 text-blue-600" />
+                      <Users className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                     )}
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{subjectName}</span>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-xs",
-                        isGoogle
-                          ? "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
-                          : "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300",
-                      )}
-                    >
+                    <span className="font-medium text-foreground">{subjectName}</span>
+                    <Badge variant="outline" className="text-xs text-muted-foreground">
                       {isGoogle ? "Google Classroom" : "StudySync"}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
-                      {subjectTasks.length} task{subjectTasks.length !== 1 ? "s" : ""}
+                    <span className="text-sm text-muted-foreground">
+                      <span className="font-num">{subjectTasks.length}</span> task
+                      {subjectTasks.length !== 1 ? "s" : ""}
                     </span>
                     {overdueInGroup > 0 && (
-                      <Badge variant="destructive" className="text-xs">
-                        {overdueInGroup} overdue
+                      <Badge variant="outline" className="border-transparent bg-danger/10 text-xs text-danger">
+                        <span className="font-num">{overdueInGroup}</span> overdue
                       </Badge>
                     )}
                     {isCollapsed ? (
-                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                     ) : (
-                      <ChevronUp className="h-4 w-4 text-gray-400" />
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                     )}
                   </div>
                 </button>
@@ -608,13 +597,7 @@ export function MyTasksClient({
                       const isGoogleTask = task.type === "google"
 
                       return (
-                        <Card
-                          key={task.id}
-                          className={cn(
-                            "transition-all hover:shadow-md",
-                            isGoogleTask ? "border-l-4 border-l-green-500" : "border-l-4 border-l-blue-500",
-                          )}
-                        >
+                        <Card key={task.id} className="transition-colors duration-150">
                           <CardContent className="p-4">
                             <div className="flex items-start gap-3">
                               {/* Checkbox */}
@@ -631,8 +614,8 @@ export function MyTasksClient({
                                   <div className="flex-1 min-w-0">
                                     <h3
                                       className={cn(
-                                        "font-medium text-gray-900 dark:text-gray-100",
-                                        task.isCompleted && "line-through text-gray-500",
+                                        "font-medium text-foreground",
+                                        task.isCompleted && "line-through text-muted-foreground",
                                       )}
                                     >
                                       {task.title}
@@ -641,15 +624,15 @@ export function MyTasksClient({
                                       {deadline && (
                                         <span
                                           className={cn(
-                                            "flex items-center gap-1 text-sm",
+                                            "flex items-center gap-1 text-sm font-num",
                                             deadline.overdue
-                                              ? "text-red-600"
+                                              ? "text-danger"
                                               : deadline.urgent
-                                                ? "text-amber-600"
-                                                : "text-gray-500",
+                                                ? "text-accent-fg"
+                                                : "text-muted-foreground",
                                           )}
                                         >
-                                          <Clock className="h-3 w-3" />
+                                          <Clock className="h-3 w-3" strokeWidth={1.75} />
                                           {deadline.text}
                                         </span>
                                       )}
@@ -663,10 +646,10 @@ export function MyTasksClient({
                                         variant="ghost"
                                         size="sm"
                                         asChild
-                                        className="text-gray-500 hover:text-gray-700"
+                                        className="text-muted-foreground hover:text-foreground"
                                       >
                                         <a href={task.externalLink} target="_blank" rel="noopener noreferrer">
-                                          <ExternalLink className="h-4 w-4" />
+                                          <ExternalLink className="h-4 w-4" strokeWidth={1.75} />
                                         </a>
                                       </Button>
                                     )}
@@ -675,7 +658,7 @@ export function MyTasksClient({
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleImportClick(task)}
-                                        className="text-xs bg-transparent"
+                                        className="text-xs"
                                       >
                                         Import to StudySync
                                       </Button>
@@ -706,12 +689,8 @@ export function MyTasksClient({
         <ImportAssignmentDialog
           open={importDialogOpen}
           onOpenChange={setImportDialogOpen}
-          groups={groups}
-          externalId={selectedAssignment.externalId}
-          title={selectedAssignment.title}
-          description={selectedAssignment.description}
-          deadline={selectedAssignment.deadline}
-          courseName={selectedAssignment.courseName}
+          assignment={selectedAssignment}
+          userGroups={groups}
         />
       )}
     </div>

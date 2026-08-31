@@ -33,56 +33,42 @@ export function WeekOverview({ tasks }: WeekOverviewProps) {
     })
   }
 
-  const getDayStatus = (date: Date) => {
-    const dayTasks = getTasksForDay(date)
-    if (dayTasks.length === 0) return "empty"
-    if (dayTasks.length >= 3) return "busy"
-    return "normal"
-  }
-
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">This Week</h3>
+    <div className="rounded-card border border-border bg-card p-4">
+      <h3 className="mb-4 text-[11.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">This Week</h3>
 
       <div className="grid grid-cols-7 gap-2">
         {weekDays.map((day) => {
           const dayTasks = getTasksForDay(day)
-          const status = getDayStatus(day)
           const today = isToday(day)
 
           return (
             <div key={day.toISOString()} className="text-center">
-              <p className={`text-xs font-medium mb-2 ${today ? "text-blue-600 dark:text-blue-400" : "text-gray-400"}`}>
+              <p
+                className={`mb-2 text-xs font-medium capitalize ${today ? "text-accent-fg" : "text-muted-foreground"}`}
+              >
                 {format(day, "EEE")}
               </p>
               <div
                 className={`
-                  relative h-12 rounded-lg flex flex-col items-center justify-center transition-all
-                  ${today ? "ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900" : ""}
-                  ${status === "empty" ? "bg-gray-100 dark:bg-gray-800" : ""}
-                  ${status === "normal" ? "bg-blue-100 dark:bg-blue-900/50" : ""}
-                  ${status === "busy" ? "bg-orange-100 dark:bg-orange-900/50" : ""}
+                  relative flex h-12 flex-col items-center justify-center rounded-control transition-colors duration-150
+                  ${today ? "ring-2 ring-ring" : ""}
+                  ${dayTasks.length > 0 ? "bg-accent-soft" : "bg-secondary"}
                 `}
               >
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`font-num text-sm font-semibold ${
                     today
-                      ? "text-blue-600 dark:text-blue-400"
-                      : status === "empty"
-                        ? "text-gray-400"
-                        : "text-gray-900 dark:text-white"
+                      ? "text-accent-fg"
+                      : dayTasks.length > 0
+                        ? "text-foreground"
+                        : "text-muted-foreground"
                   }`}
                 >
                   {format(day, "d")}
                 </span>
                 {dayTasks.length > 0 && (
-                  <span
-                    className={`text-xs font-medium ${
-                      status === "busy" ? "text-orange-600 dark:text-orange-400" : "text-blue-600 dark:text-blue-400"
-                    }`}
-                  >
-                    {dayTasks.length}
-                  </span>
+                  <span className="font-num text-xs font-medium text-accent-fg">{dayTasks.length}</span>
                 )}
               </div>
             </div>

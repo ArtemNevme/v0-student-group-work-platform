@@ -2,7 +2,6 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUserAchievements } from "@/lib/actions/gamification"
 import { getProfileStats } from "@/lib/actions/profile"
-import { DashboardHeader } from "@/components/layout/dashboard-header"
 import { AchievementShowcase } from "@/components/gamification/achievement-showcase"
 import { Card, CardContent } from "@/components/ui/card"
 import { EditProfileDialog } from "@/components/profile/edit-profile-dialog"
@@ -30,14 +29,11 @@ export default async function ProfilePage() {
   const memberSince = profile?.created_at ? format(new Date(profile.created_at), "MMMM yyyy") : "Unknown"
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader />
-
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Profile Header Card */}
-        <Card className="mb-6 overflow-hidden">
-          {/* Cover gradient */}
-          <div className="h-32 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600" />
+    <div className="mx-auto w-full max-w-6xl px-4 py-8">
+      {/* Profile Header Card */}
+      <Card className="mb-6 overflow-hidden">
+        {/* Cover gradient */}
+        <div className="h-32 bg-secondary" />
 
           <CardContent className="relative px-6 pb-6">
             {/* Avatar positioned over cover */}
@@ -59,9 +55,11 @@ export default async function ProfilePage() {
 
             {/* Profile info */}
             <div className="mt-4">
-              <h1 className="text-2xl font-bold text-gray-900">{profile?.full_name || "User"}</h1>
+              <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">
+                {profile?.full_name || "User"}
+              </h1>
 
-              {profile?.bio && <p className="mt-2 text-gray-600 max-w-2xl">{profile.bio}</p>}
+              {profile?.bio && <p className="mt-2 text-muted-foreground max-w-2xl">{profile.bio}</p>}
 
               <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 {profile?.email && (
@@ -87,9 +85,11 @@ export default async function ProfilePage() {
                   <span>Joined {memberSince}</span>
                 </div>
                 {(profile?.streak || 0) > 0 && (
-                  <div className="flex items-center gap-1.5 text-orange-600">
-                    <Flame className="h-4 w-4" />
-                    <span>{profile.streak} day streak</span>
+                  <div className="flex items-center gap-1.5 text-accent-fg">
+                    <Flame className="h-4 w-4" strokeWidth={1.75} />
+                    <span>
+                      <span className="font-num">{profile.streak}</span> day streak
+                    </span>
                   </div>
                 )}
               </div>
@@ -99,7 +99,7 @@ export default async function ProfilePage() {
 
         {/* Stats Cards */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">Statistics</h2>
+          <h2 className="font-display text-[17px] font-medium tracking-[-0.01em] text-foreground mb-3">Statistics</h2>
           <ProfileStatsCards
             stats={stats}
             points={profile?.points || 0}
@@ -116,7 +116,6 @@ export default async function ProfilePage() {
 
         {/* Achievements */}
         <AchievementShowcase achievements={achievements || []} />
-      </main>
     </div>
   )
 }

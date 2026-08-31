@@ -1,8 +1,8 @@
 "use client"
 
-import { Progress } from "@/components/ui/progress"
 import { Flame, Zap, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
+import { format } from "date-fns"
 
 interface WelcomeHeaderProps {
   profile: {
@@ -20,12 +20,9 @@ export function WelcomeHeader({ profile, urgentTasksCount, pendingTasksCount }: 
   const [displayXP, setDisplayXP] = useState(0)
 
   const firstName = profile?.full_name?.split(" ")[0] || "there"
-  const currentLevel = profile?.level || 1
   const currentXP = profile?.points || 0
   const streakDays = profile?.streak || 0
   const longestStreak = profile?.longest_streak || 0
-  const xpForNextLevel = currentLevel * 100
-  const progress = ((currentXP % 100) / xpForNextLevel) * 100
 
   // Get time-based greeting
   const getGreeting = () => {
@@ -35,15 +32,16 @@ export function WelcomeHeader({ profile, urgentTasksCount, pendingTasksCount }: 
     return "Good evening"
   }
 
-  // Get urgency message
-  const getUrgencyMessage = () => {
+  const dateLabel = format(new Date(), "EEEE, MMMM d")
+
+  const getSubtitle = () => {
     if (urgentTasksCount > 0) {
-      return `${urgentTasksCount} task${urgentTasksCount > 1 ? "s" : ""} due soon`
+      return `${dateLabel} · ${urgentTasksCount} task${urgentTasksCount !== 1 ? "s" : ""} due within 24 hours`
     }
     if (pendingTasksCount > 0) {
-      return `${pendingTasksCount} task${pendingTasksCount > 1 ? "s" : ""} pending`
+      return `${dateLabel} · ${pendingTasksCount} task${pendingTasksCount !== 1 ? "s" : ""} in progress`
     }
-    return "You're all caught up!"
+    return `${dateLabel} · all caught up`
   }
 
   useEffect(() => {
@@ -66,50 +64,42 @@ export function WelcomeHeader({ profile, urgentTasksCount, pendingTasksCount }: 
   }, [currentXP])
 
   return (
-    <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-violet-700 p-6 text-white shadow-lg">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* Left: Greeting */}
-        <div>
-          <h1 className="text-2xl font-bold">
-            {getGreeting()}, {firstName}!
-          </h1>
-          <p className={`text-sm mt-1 ${urgentTasksCount > 0 ? "text-orange-200" : "text-blue-100"}`}>
-            {getUrgencyMessage()}
-          </p>
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Left: Greeting */}
+      <div>
+        <h1 className="font-display text-2xl font-semibold tracking-[-0.015em] text-foreground">
+          {getGreeting()}, {firstName}
+        </h1>
+        <p className="mt-1 text-[13.5px] text-muted-foreground">{getSubtitle()}</p>
+      </div>
+
+      {/* Right: Streak & XP chips */}
+      <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-1.5 rounded-chip bg-accent-soft px-3 py-1.5"
+          title={
+            longestStreak > 0
+              ? `Best streak: ${longestStreak} day${longestStreak !== 1 ? "s" : ""}`
+              : "Complete tasks daily to build your streak"
+          }
+        >
+          <Flame
+            className={`h-4 w-4 ${streakDays > 0 ? "text-accent-fg" : "text-muted-foreground"}`}
+            strokeWidth={1.75}
+          />
+          <span className={`font-num text-sm font-semibold ${streakDays > 0 ? "text-accent-fg" : "text-muted-foreground"}`}>
+            {streakDays}
+          </span>
+          {streakDays > 0 && longestStreak === streakDays && streakDays > 1 && (
+            <span title="Personal best!">
+              <TrendingUp className="h-3 w-3 text-accent-fg" strokeWidth={1.75} />
+            </span>
+          )}
         </div>
 
-        {/* Right: Level & Streak compact */}
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
-              streakDays > 0 ? "bg-orange-500/20" : "bg-white/10"
-            }`}
-            title={
-              longestStreak > 0 ? `Best streak: ${longestStreak} days` : "Complete tasks daily to build your streak!"
-            }
-          >
-            <Flame className={`h-4 w-4 ${streakDays > 0 ? "text-orange-300" : "text-white/50"}`} />
-            <span className={`text-sm font-semibold ${streakDays > 0 ? "text-orange-100" : "text-white/50"}`}>
-              {streakDays}
-            </span>
-            {streakDays > 0 && longestStreak === streakDays && streakDays > 1 && (
-              <TrendingUp className="h-3 w-3 text-green-300" title="Personal best!" />
-            )}
-          </div>
-
-          {/* Level & XP */}
-          <div className="flex items-center gap-3 bg-white/10 rounded-full pl-2 pr-4 py-1.5">
-            <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
-              <span className="text-sm font-bold">{currentLevel}</span>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1">
-                <Zap className="h-3 w-3 text-yellow-300" />
-                <span className="text-xs font-medium">{displayXP} XP</span>
-              </div>
-              <Progress value={progress} className="h-1 w-16 bg-white/20" />
-            </div>
-          </div>
+        <div className="flex items-center gap-1.5 rounded-chip bg-accent-soft px-3 py-1.5" title="Your XP">
+          <Zap className="h-3.5 w-3.5 text-accent-fg" strokeWidth={1.75} />
+          <span className="font-num text-sm font-semibold text-accent-fg">{displayXP.toLocaleString("en-US")} XP</span>
         </div>
       </div>
     </div>

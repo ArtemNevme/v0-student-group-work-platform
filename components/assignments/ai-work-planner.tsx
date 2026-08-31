@@ -171,9 +171,9 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h4 className="font-medium">{task.title}</h4>
-                        <p className="mt-1 text-sm text-gray-600">{task.description}</p>
-                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
-                          <span>{task.estimatedHours}h estimated</span>
+                        <p className="mt-1 text-sm text-muted-foreground">{task.description}</p>
+                        <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                          <span><span className="font-num">{task.estimatedHours}h</span> estimated</span>
                         </div>
                       </div>
                       <div className="ml-4 flex items-center gap-2">
@@ -198,22 +198,22 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
                   {generatedPlan.sources.map((source, index) => {
                     const SourceIcon = categoryIcons[source.category]
                     return (
-                      <div key={index} className="rounded-lg border p-4">
+                      <div key={index} className="rounded-card border border-border p-4">
                         <div className="flex items-start gap-3">
-                          <div className="rounded-md bg-blue-50 p-2">
-                            <SourceIcon className="h-4 w-4 text-blue-600" />
+                          <div className="rounded-control bg-secondary p-2">
+                            <SourceIcon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium">{source.title}</h4>
-                            <p className="mt-1 text-sm text-gray-600">{source.description}</p>
+                            <p className="mt-1 text-sm text-muted-foreground">{source.description}</p>
                             <a
                               href={source.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center text-sm text-blue-600 hover:underline"
+                              className="mt-2 inline-flex items-center text-sm text-accent-fg hover:underline"
                             >
                               View source
-                              <LinkIcon className="ml-1 h-3 w-3" />
+                              <LinkIcon className="ml-1 h-3 w-3" strokeWidth={1.75} />
                             </a>
                           </div>
                         </div>
@@ -225,8 +225,8 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
             )}
           </div>
           {error && (
-            <div className="mt-4 rounded-md bg-red-50 p-3">
-              <p className="text-sm text-red-800">{error}</p>
+            <div className="mt-4 rounded-control bg-danger/10 p-3">
+              <p className="text-sm text-danger">{error}</p>
             </div>
           )}
         </CardContent>
@@ -247,14 +247,14 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
         <div className="space-y-6">
           {/* Show uploaded files */}
           {files.length > 0 && (
-            <div className="rounded-lg border bg-blue-50 p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-900">
-                <FileText className="h-4 w-4" />
-                Files to analyze ({files.length})
+            <div className="rounded-card border border-border bg-secondary p-4">
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                <FileText className="h-4 w-4" strokeWidth={1.75} />
+                Files to analyze (<span className="font-num">{files.length}</span>)
               </div>
               <div className="space-y-1">
                 {files.map((file) => (
-                  <div key={file.id} className="text-sm text-blue-700">
+                  <div key={file.id} className="text-sm text-muted-foreground">
                     • {file.file_name}
                   </div>
                 ))}
@@ -276,7 +276,7 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
                       onCheckedChange={() => handleSourceTypeToggle(option.id)}
                     />
                     <Label htmlFor={option.id} className="flex cursor-pointer items-center gap-2 text-sm font-normal">
-                      <Icon className="h-4 w-4 text-gray-500" />
+                      <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                       {option.label}
                     </Label>
                   </div>
@@ -286,11 +286,11 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
           </div>
 
           <div className="flex flex-col items-center justify-center border-t pt-6 text-center">
-            <div className="mb-4 rounded-full bg-blue-100 p-4">
-              <Sparkles className="h-8 w-8 text-blue-600" />
+            <div className="mb-4 rounded-full bg-accent-soft p-4">
+              <Sparkles className="h-8 w-8 text-accent-fg" strokeWidth={1.75} />
             </div>
-            <h3 className="mb-2 font-semibold text-gray-900">Generate Work Plan</h3>
-            <p className="mb-6 max-w-md text-sm text-gray-600">
+            <h3 className="mb-2 font-semibold text-foreground">Generate Work Plan</h3>
+            <p className="mb-6 max-w-md text-sm text-muted-foreground">
               AI will {files.length > 0 ? "analyze your uploaded files, " : ""}break down your assignment into tasks,
               estimate time requirements, distribute work evenly across all team members, and recommend relevant sources
               based on your preferences
@@ -309,8 +309,8 @@ export function AIWorkPlanner({ assignmentId, files = [] }: AIWorkPlannerProps) 
               )}
             </Button>
             {error && (
-              <div className="mt-4 rounded-md bg-red-50 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="mt-4 rounded-control bg-danger/10 p-3">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
           </div>

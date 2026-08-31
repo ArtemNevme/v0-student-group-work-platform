@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudySinc — Landing (Mockup)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --surface: #fcfaf7;
+      --surface-2: #edeae3;
+      --fg: #2d2a26;
+      --muted: #6e6a63;
+      --border: #e6e1d8;
+      --accent: #c7802a;
+      --accent-hover: #b5721f;
+      --accent-soft: #f5e7d3;
+      --accent-fg: #8a5618;
+      --on-accent: #fffdf8;
+      --radius-card: 10px;
+      --radius-control: 8px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: var(--on-accent);
+      display: grid;
+      place-items: center;
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .brand-text {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .nav-links a { color: inherit; text-decoration: none; }
+    .nav-links a:hover { color: var(--fg); }
+    .nav-actions { display: flex; gap: 12px; }
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--radius-control);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-ghost { background: transparent; color: var(--fg); border-color: var(--border); }
+    .btn-ghost:hover { background: var(--surface-2); }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+    .hero h1 {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 46px;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin: 0 0 20px;
+    }
+    .hero p {
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 48ch;
+      margin: 0 0 28px;
+    }
+    .hero-actions { display: flex; gap: 12px; }
+    .hero-visual {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      box-shadow: 0 1px 2px rgba(30,25,15,0.04);
+    }
+    .mini-card {
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mini-card:last-child { margin-bottom: 0; }
+    .mini-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent-fg);
+      display: grid;
+      place-items: center;
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+    }
+    .mini-title { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+    .mini-meta { font-size: 12px; color: var(--muted); }
+    .features {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+    .features h2 {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 28px;
+      letter-spacing: -0.015em;
+      margin: 0 0 12px;
+      text-align: center;
+    }
+    .features > p {
+      text-align: center;
+      color: var(--muted);
+      max-width: 60ch;
+      margin: 0 auto 40px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+    }
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent-fg);
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+    }
+    .feature-card h3 {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      margin: 0 0 6px;
+    }
+    .feature-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .cta {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 60px 40px;
+    }
+    .cta h2 {
+      font-family: 'Geologica', sans-serif;
+      font-weight: 600;
+      font-size: 28px;
+      letter-spacing: -0.015em;
+      margin: 0 0 12px;
+    }
+    .cta p { color: var(--muted); max-width: 55ch; margin: 0 auto 24px; }
+    footer {
+      padding: 24px 40px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-icon">S</div>
+      <div class="brand-text">StudySinc</div>
+    </div>
+    <div class="nav-links">
+      <a href="#">Features</a>
+      <a href="#">Pricing</a>
+      <a href="#">About</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost">Log in</button>
+      <button class="btn btn-primary">Get started</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <h1>Collaborate Smarter, Not Harder</h1>
+      <p>StudySinc is a calm, focused workspace for student group projects. Track deadlines, share files, and keep your team in sync without the noise.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary">Start your first project</button>
+        <button class="btn btn-ghost">See how it works</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="mini-card">
+        <div class="mini-icon">PI</div>
+        <div>
+          <div class="mini-title">PI-301 · Software Engineering</div>
+          <div class="mini-meta">4 tasks · 3 days left</div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-icon">✎</div>
+        <div>
+          <div class="mini-title">Write lab report</div>
+          <div class="mini-meta">Due today · 2 comments</div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-icon">⚡</div>
+        <div>
+          <div class="mini-title">Streak: 12 days</div>
+          <div class="mini-meta">Level 7 · 2,450 XP</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <h2>Everything you need to succeed</h2>
+    <p>Built for students who want a clean, no-nonsense tool that stays out of the way.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">1</div>
+        <h3>Group workspaces</h3>
+        <p>Create a team for every course and invite classmates in one click.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">2</div>
+        <h3>Deadline tracking</h3>
+        <p>See what’s due today, this week, and what’s already slipping.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">3</div>
+        <h3>Google Classroom sync</h3>
+        <p>Import courses and assignments automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">4</div>
+        <h3>Gentle gamification</h3>
+        <p>XP, levels, and streaks that motivate without turning study into a game.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Ready to focus?</h2>
+    <p>Join thousands of students who use StudySinc to keep their group work organized and on time.</p>
+    <button class="btn btn-primary">Get started for free</button>
+  </section>
+
+  <footer>© 2026 StudySinc. All rights reserved.</footer>
+</body>
+</html>
